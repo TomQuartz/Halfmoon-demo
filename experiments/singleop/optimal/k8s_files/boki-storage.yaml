@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: boki-storage-deployment
+  labels:
+    app: boki-storage
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: boki-storage
+  template:
+    metadata:
+      labels:
+        app: boki-storage
+    spec:
+      containers:
+      - name: boki-storage
+        image: shengqipku/halfmoon:sosp-ae
+        command: ["/boki/storage"]
+          args:
+            - --zookeeper_host=zookeeper:2181
+            - --listen_iface=eth0
+            - --db_path=/tmp/storage/logdata
+            - --num_io_workers=2
+            - --io_uring_entries=2048
+            - --io_uring_fd_slots=4096
+            - --slog_local_cut_interval_us=300
+            - --slog_storage_bgthread_interval_ms=1
+            - --slog_storage_backend=rocksdb
+            - --slog_storage_cache_cap_mb=4096
+            - --use_txn_engine
+            # - --v=1
+        volumeMounts:
+          - name: storage-volume
+            mountPath: /tmp/storage
+        env:
+          - name: FAAS_NODE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+      volumes:
+        - name: storage-volume
+          hostPath:
+            path: /mnt/storage
+      restartPolicy: Always

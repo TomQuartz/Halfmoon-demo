@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nop-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: nop
+  template:
+    metadata:
+      labels:
+        app: nop
+    spec:
+      containers:
+        - name: nop
+          image: shengqipku/halfmoon-bench:sosp-ae
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/nop", "1"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "8"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                fieldRef:
+                  fieldPath: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+  updateStrategy:
+    type: RollingUpdate
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: singleop-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: singleop
+  template:
+    metadata:
+      labels:
+        app: singleop
+    spec:
+      containers:
+        - name: singleop
+          image: shengqipku/halfmoon-bench:sosp-ae
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/singleop", "2"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "8"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                fieldRef:
+                  fieldPath: TABLE_PREFIX
+            - name: NUM_KEYS
+              valueFrom:
+                fieldRef:
+                  fieldPath: NUM_KEYS
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+  updateStrategy:
+    type: RollingUpdate

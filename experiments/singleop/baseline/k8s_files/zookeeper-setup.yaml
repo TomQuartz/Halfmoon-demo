@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-setup
+spec:
+  containers:
+    - name: zookeeper-setup
+      image: zookeeper:3.6.2
+      volumeMounts:
+        - name: zk-setup-volume
+          mountPath: /tmp/boki/zk_setup.sh
+  volumes:
+    - name: zk-setup-volume
+      hostPath:
+        path: /tmp/zk_setup.sh
+  restartPolicy: Always

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: boki-controller
+spec:
+  containers:
+    - name: boki-controller
+      image: shengqipku/halfmoon:sosp-ae
+      command: ["/boki/controller"]
+      args:
+        - --zookeeper_host=zookeeper:2181
+        - --metalog_replicas=3
+        - --userlog_replicas=3
+        - --index_replicas=8
+  restartPolicy: Always

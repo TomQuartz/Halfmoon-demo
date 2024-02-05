@@ -2,8 +2,8 @@
 
 set -u
 
-BASE_DIR=`realpath $(dirname $0)`
-ROOT_DIR=`realpath $BASE_DIR/../../..`
+BASE_DIR=`realpath $(dirname $0)`      # baseline
+ROOT_DIR=`realpath $BASE_DIR/../../..` # Halfmoon-bench
 
 BENCH_IMAGE=shengqipku/halfmoon-bench:sosp-ae
 
@@ -13,7 +13,7 @@ AWS_REGION=ap-southeast-1
 
 NUM_KEYS=100
 
-EXP_DIR=$BASE_DIR/results/$1
+EXP_DIR=$BASE_DIR/results/$1  # $1=QPS15
 QPS=$2
 
 HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper

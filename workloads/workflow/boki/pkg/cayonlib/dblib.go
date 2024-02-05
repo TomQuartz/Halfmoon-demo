@@ -14,33 +14,33 @@ import (
 	// "github.com/lithammer/shortuuid"
 )
 
-func LibRead(tablename string, key aws.JSONValue, projection []string) aws.JSONValue {
-	Key, err := dynamodbattribute.MarshalMap(key)
-	CHECK(err)
-	var res *dynamodb.GetItemOutput
-	if len(projection) == 0 {
-		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
-			TableName: aws.String(kTablePrefix + tablename),
-			Key:       Key,
-			// ConsistentRead: aws.Bool(true),
-		})
-	} else {
-		expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).Build()
-		CHECK(err)
-		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
-			TableName:                aws.String(kTablePrefix + tablename),
-			Key:                      Key,
-			ProjectionExpression:     expr.Projection(),
-			ExpressionAttributeNames: expr.Names(),
-			// ConsistentRead:           aws.Bool(true),
-		})
-	}
-	CHECK(err)
-	item := aws.JSONValue{}
-	err = dynamodbattribute.UnmarshalMap(res.Item, &item)
-	CHECK(err)
-	return item
-}
+// func LibRead(tablename string, key aws.JSONValue, projection []string) aws.JSONValue {
+// 	Key, err := dynamodbattribute.MarshalMap(key)
+// 	CHECK(err)
+// 	var res *dynamodb.GetItemOutput
+// 	if len(projection) == 0 {
+// 		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
+// 			TableName: aws.String(kTablePrefix + tablename),
+// 			Key:       Key,
+// 			// ConsistentRead: aws.Bool(true),
+// 		})
+// 	} else {
+// 		expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).Build()
+// 		CHECK(err)
+// 		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
+// 			TableName:                aws.String(kTablePrefix + tablename),
+// 			Key:                      Key,
+// 			ProjectionExpression:     expr.Projection(),
+// 			ExpressionAttributeNames: expr.Names(),
+// 			// ConsistentRead:           aws.Bool(true),
+// 		})
+// 	}
+// 	CHECK(err)
+// 	item := aws.JSONValue{}
+// 	err = dynamodbattribute.UnmarshalMap(res.Item, &item)
+// 	CHECK(err)
+// 	return item
+// }
 
 func LibWrite(tablename string, key aws.JSONValue,
 	update map[expression.NameBuilder]expression.OperandBuilder) {
@@ -157,34 +157,34 @@ func CondWrite(env *Env, tablename string, key string,
 		}
 	}
 
-	Key, err := dynamodbattribute.MarshalMap(aws.JSONValue{"K": key})
-	CHECK(err)
-	condBuilder := expression.Or(
-		expression.AttributeNotExists(expression.Name("VERSION")),
-		expression.Name("VERSION").LessThan(expression.Value(preWriteLog.SeqNum)))
-	if _, err = expression.NewBuilder().WithCondition(cond).Build(); err == nil {
-		condBuilder = expression.And(condBuilder, cond)
-	}
-	updateBuilder := expression.UpdateBuilder{}
-	for k, v := range update {
-		updateBuilder = updateBuilder.Set(k, v)
-	}
-	updateBuilder = updateBuilder.
-		Set(expression.Name("VERSION"), expression.Value(preWriteLog.SeqNum))
-	expr, err := expression.NewBuilder().WithCondition(condBuilder).WithUpdate(updateBuilder).Build()
-	CHECK(err)
+	// Key, err := dynamodbattribute.MarshalMap(aws.JSONValue{"K": key})
+	// CHECK(err)
+	// condBuilder := expression.Or(
+	// 	expression.AttributeNotExists(expression.Name("VERSION")),
+	// 	expression.Name("VERSION").LessThan(expression.Value(preWriteLog.SeqNum)))
+	// if _, err = expression.NewBuilder().WithCondition(cond).Build(); err == nil {
+	// 	condBuilder = expression.And(condBuilder, cond)
+	// }
+	// updateBuilder := expression.UpdateBuilder{}
+	// for k, v := range update {
+	// 	updateBuilder = updateBuilder.Set(k, v)
+	// }
+	// updateBuilder = updateBuilder.
+	// 	Set(expression.Name("VERSION"), expression.Value(preWriteLog.SeqNum))
+	// expr, err := expression.NewBuilder().WithCondition(condBuilder).WithUpdate(updateBuilder).Build()
+	// CHECK(err)
 
-	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName:                 aws.String(kTablePrefix + tablename),
-		Key:                       Key,
-		ConditionExpression:       expr.Condition(),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-	})
-	if err != nil {
-		AssertConditionFailure(err)
-	}
+	// _, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
+	// 	TableName:                 aws.String(kTablePrefix + tablename),
+	// 	Key:                       Key,
+	// 	ConditionExpression:       expr.Condition(),
+	// 	ExpressionAttributeNames:  expr.Names(),
+	// 	ExpressionAttributeValues: expr.Values(),
+	// 	UpdateExpression:          expr.Update(),
+	// })
+	// if err != nil {
+	// 	AssertConditionFailure(err)
+	// }
 
 	LogStepResult(env, env.InstanceId, preWriteLog.StepNumber, aws.JSONValue{
 		"type":  "PostWrite",
@@ -205,7 +205,8 @@ func Read(env *Env, tablename string, key string) interface{} {
 		env.StepNumber += 1
 	} else {
 		// log.Printf("[INFO] Read data from DB")
-		item := LibRead(tablename, aws.JSONValue{"K": key}, []string{"V"})
+		// item := LibRead(tablename, aws.JSONValue{"K": key}, []string{"V"})
+		item := aws.JSONValue{}
 		var res interface{}
 		if tmp, ok := item["V"]; ok {
 			res = tmp

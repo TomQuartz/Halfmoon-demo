@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: DaemonSet
+metadata:
+  name: boki-engine-daemonset
+  labels:
+    app: boki-engine
+spec:
+  selector:
+    matchLabels:
+      app: boki-engine
+  template:
+    metadata:
+      labels:
+        app: boki-engine
+    spec:
+      containers:
+        - name: boki-engine
+          image: shengqipku/halfmoon:sosp-ae
+          command: ["/boki/engine"]
+          args:
+            - --zookeeper_host=zookeeper:2181
+            - --listen_iface=eth0
+            - --root_path_for_ipc=/tmp/boki/ipc
+            - --func_config_file=/tmp/boki/func_config.json
+            - --num_io_workers=4
+            - --instant_rps_p_norm=0.8
+            - --io_uring_entries=2048
+            - --io_uring_fd_slots=4096
+            - --enable_shared_log
+            - --slog_engine_enable_cache
+            - --slog_engine_cache_cap_mb=1024
+            # - --slog_engine_propagate_auxdata
+            # - --use_txn_engine
+            # - --v=1
+          volumeMounts:
+            - name: boki-data
+              mountPath: /tmp/boki
+            - name: cgroup-data
+              mountPath: /tmp/root_cgroupfs
+          env:
+            - name: FAAS_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: FAAS_CGROUP_FS_ROOT
+              value: /tmp/root_cgroupfs
+      volumes:
+        - name: boki-data
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: cgroup-data
+          hostPath:
+            path: /sys/fs/cgroup
+        restartPolicy: Always
+  updateStrategy:
+    type: RollingUpdate
