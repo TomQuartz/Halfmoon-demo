@@ -8,8 +8,6 @@ spec:
       image: shengqipku/halfmoon:sosp-ae
       ports:
         - containerPort: 8080
-      # command: [ "/bin/bash", "-c", "--" ]
-      # args: [ "while true; do sleep 30; done;" ]
       command: ["/boki/gateway"]
       args:
         - --zookeeper_host=10.244.0.3:2181

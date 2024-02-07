@@ -2,7 +2,7 @@
 
 export ZOO_LOG4J_PROP="WARN,CONSOLE"
 
-SERVER="${ZK_HOST:-zookeeper:2181}"
+SERVER="${ZK_HOST:-10.244.0.3:2181}"
 
 ./bin/zkCli.sh -server $SERVER <<EOF
 deleteall /faas

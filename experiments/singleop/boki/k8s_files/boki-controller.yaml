@@ -8,7 +8,7 @@ spec:
       image: shengqipku/halfmoon:sosp-ae
       command: ["/boki/controller"]
       args:
-        - --zookeeper_host=zookeeper:2181
+        - --zookeeper_host=10.244.0.3:2181
         - --metalog_replicas=3
         - --userlog_replicas=3
         - --index_replicas=8

@@ -42,29 +42,29 @@ import (
 // 	return item
 // }
 
-func LibWrite(tablename string, key aws.JSONValue,
-	update map[expression.NameBuilder]expression.OperandBuilder) {
-	Key, err := dynamodbattribute.MarshalMap(key)
-	CHECK(err)
-	if len(update) == 0 {
-		panic("update never be empty")
-	}
-	updateBuilder := expression.UpdateBuilder{}
-	for k, v := range update {
-		updateBuilder = updateBuilder.Set(k, v)
-	}
-	builder := expression.NewBuilder().WithUpdate(updateBuilder)
-	expr, err := builder.Build()
-	CHECK(err)
-	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName:                 aws.String(kTablePrefix + tablename),
-		Key:                       Key,
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-	})
-	CHECK(err)
-}
+// func LibWrite(tablename string, key aws.JSONValue,
+// 	update map[expression.NameBuilder]expression.OperandBuilder) {
+// 	Key, err := dynamodbattribute.MarshalMap(key)
+// 	CHECK(err)
+// 	if len(update) == 0 {
+// 		panic("update never be empty")
+// 	}
+// 	updateBuilder := expression.UpdateBuilder{}
+// 	for k, v := range update {
+// 		updateBuilder = updateBuilder.Set(k, v)
+// 	}
+// 	builder := expression.NewBuilder().WithUpdate(updateBuilder)
+// 	expr, err := builder.Build()
+// 	CHECK(err)
+// 	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
+// 		TableName:                 aws.String(kTablePrefix + tablename),
+// 		Key:                       Key,
+// 		ExpressionAttributeNames:  expr.Names(),
+// 		ExpressionAttributeValues: expr.Values(),
+// 		UpdateExpression:          expr.Update(),
+// 	})
+// 	CHECK(err)
+// }
 
 func LibScanWithLast(tablename string, projection []string, last map[string]*dynamodb.AttributeValue) []aws.JSONValue {
 	var res *dynamodb.ScanOutput

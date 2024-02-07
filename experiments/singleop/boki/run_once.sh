@@ -2,8 +2,8 @@
 
 set -u
 
-BASE_DIR=`realpath $(dirname $0)`
-ROOT_DIR=`realpath $BASE_DIR/../../..`
+BASE_DIR=`realpath $(dirname $0)`       # boki
+ROOT_DIR=`realpath $BASE_DIR/../../..`  # Halfmoon-bench
 
 BENCH_IMAGE=shengqipku/halfmoon-bench:sosp-ae
 
@@ -13,15 +13,15 @@ AWS_REGION=ap-southeast-1
 
 NUM_KEYS=100
 
-EXP_DIR=$BASE_DIR/results/$1
-QPS=$2
+EXP_DIR=$BASE_DIR/results/$1  # $1=QPS15
+QPS=$2                        # $2=15
 
 HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper
 WRK_DIR=/usr/local/bin
 
-MANAGER_HOST=`$HELPER_SCRIPT get-docker-manager-host --base-dir=$BASE_DIR`
-CLIENT_HOST=`$HELPER_SCRIPT get-client-host --base-dir=$BASE_DIR`
-ENTRY_HOST=`$HELPER_SCRIPT get-service-host --base-dir=$BASE_DIR --service=boki-gateway`
+MANAGER_HOST=`$HELPER_SCRIPT get-docker-manager-host --base-dir=$BASE_DIR`                # bokiexp-gateway
+CLIENT_HOST=`$HELPER_SCRIPT get-client-host --base-dir=$BASE_DIR`                         # bokiexp-client
+ENTRY_HOST=`$HELPER_SCRIPT get-service-host --base-dir=$BASE_DIR --service=boki-gateway`  # bokiexp-gateway
 ALL_HOSTS=`$HELPER_SCRIPT get-all-server-hosts --base-dir=$BASE_DIR`
 
 $HELPER_SCRIPT generate-docker-compose --base-dir=$BASE_DIR
