@@ -25,5 +25,5 @@ request = function()
 end
 
 function init(rand_seed)
-    math.randomseed(rand_seed)
+    math.randomseed(10)
 end

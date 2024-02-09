@@ -5,7 +5,7 @@ set -u
 BASE_DIR=`realpath .`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=shengqipku/halfmoon-bench:sosp-ae
+BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v0
 
 # Do I need them?
 AWS_REGION=ap-southeast-1
@@ -13,14 +13,19 @@ NUM_KEYS=100
 EXP_DIR=$BASE_DIR/results/QPS15  # $1=QPS15
 QPS=15                           # $2=15
 
-minikube start --force
+HELPER_SCRIPT=$ROOT_DIR/scripts/minikube_helper
+WRK_DIR=/usr/local/bin
 
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
+minikube start --force
+
+kubectl label nodes minikube node-restriction.kubernetes.io/placement_label=engine_node
+
 minikube ssh -- docker pull $BENCH_IMAGE
 
-minikube ssh -- docker run -v /tmp:/home/docker \
+minikube ssh -- docker run -v /home/docker:/tmp \
     $BENCH_IMAGE \
     cp -r /bokiflow-bin/singleop /tmp/
 
@@ -57,18 +62,32 @@ sleep 10
 kubectl apply -f "$BASE_DIR/k8s_files/zookeeper-setup.yaml"
 sleep 10
 kubectl exec -it zookeeper-setup -- bash /tmp/boki/zk_setup.sh &
-sleep 120
 kubectl apply -f "$BASE_DIR/k8s_files/boki-engine.yaml"
-kubectl apply -f "$BASE_DIR/k8s_files/boki-controller.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-gateway.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-storage.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-sequencer.yaml"
+kubectl apply -f "$BASE_DIR/k8s_files/boki-controller.yaml"
+kubectl apply -f "$BASE_DIR/k8s_files/app.yaml"
+
+sleep 180
 
 rm -rf $EXP_DIR
 mkdir -p $EXP_DIR
 
 minikube ssh -- cat /proc/cmdline >>$EXP_DIR/kernel_cmdline
 minikube ssh -- uname -a >>$EXP_DIR/kernel_version
+minikube cp ~/wrk2/wrk minikube:/usr/local/bin/
+minikube ssh -- sudo chmod +x /usr/local/bin/wrk
+
+minikube cp $ROOT_DIR/workloads/workflow/boki/benchmark/singleop/workload.lua minikube:/tmp/
+minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 40 -L -U \
+    -s /tmp/workload.lua \
+    http://10.244.0.6:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
+sleep 10
+minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 200 -L -U \
+    -s /tmp/workload.lua \
+    http://10.244.0.6:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
+sleep 10
 
 minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
     /home/docker/singleop/init clean

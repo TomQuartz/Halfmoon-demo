@@ -32,4 +32,4 @@ spec:
           value: "1"
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
-      restartPolicy: Alwaysroot
+      restartPolicy: Always
