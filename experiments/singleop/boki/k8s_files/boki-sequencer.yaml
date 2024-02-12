@@ -16,20 +16,19 @@ spec:
       containers:
       - name: boki-sequencer
         image: shengqipku/halfmoon:sosp-ae
-        # command: [ "/bin/bash", "-c", "--" ]
-        # args: [ "while true; do sleep 30; done;" ]
-        command: ["/boki/sequencer"]
-        args:
-          - --zookeeper_host=10.244.0.3:2181
-          - --listen_iface=eth0
-          - --num_io_workers=2
-          - --io_uring_entries=2048
-          - --io_uring_fd_slots=4096
-          - --slog_global_cut_interval_us=300
-          # - --v=1
+        command: ["/tmp/scripts/sequencer_start.sh"]
+        volumeMounts:
+        - name: sequencer-script
+          mountPath: /tmp/scripts/sequencer_start.sh
         env:
-        - name: FAAS_NODE_ID
-          value: "1"
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      volumes:
+      - name: sequencer-script
+        hostPath:
+          path: /tmp/sequencer_start.sh
       nodeSelector:
-        node-restriction.kubernetes.io/placement_label: engine_node
+        node-restriction.kubernetes.io/placement_label: sequencer_node
       restartPolicy: Always

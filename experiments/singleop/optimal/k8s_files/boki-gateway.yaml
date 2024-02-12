@@ -3,16 +3,16 @@ kind: Pod
 metadata:
   name: boki-gateway
 spec:
+  nodeName: gateway1
   containers:
     - name: boki-gateway
       image: shengqipku/halfmoon:sosp-ae
       ports:
         - containerPort: 8080
-      # command: [ "/bin/bash", "-c", "--" ]
-      # args: [ "while true; do sleep 30; done;" ]
+          hostPort: 8080
       command: ["/boki/gateway"]
       args:
-        - --zookeeper_host=10.244.0.3:2181
+        - --zookeeper_host=gateway1:2181
         - --listen_iface=eth0
         - --http_port=8080
         - --func_config_file=/tmp/boki/func_config.json

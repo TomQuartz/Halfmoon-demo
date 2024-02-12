@@ -14,7 +14,7 @@ spec:
       containers:
         - name: nop
           image: emptyredbox/halfmoon-bench:test-v0
-          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/nop", "1"]
+          command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -23,10 +23,10 @@ spec:
               value: "8"
             - name: GOGC
               value: "1000"
-            - name: FAAS_IO_THREAD_NICE
-              value: "0"
-            - name: FAAS_IO_THREAD_CPUSET
-              value: "0"
+            # - name: FAAS_IO_THREAD_NICE
+            #   value: "0"
+            # - name: FAAS_IO_THREAD_CPUSET
+            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:
@@ -50,7 +50,7 @@ spec:
       containers:
         - name: singleop
           image: emptyredbox/halfmoon-bench:test-v0
-          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/singleop", "2"]
+          command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -63,10 +63,10 @@ spec:
               value: "jpyGegBc-"
             - name: NUM_KEYS
               value: "100"
-            - name: FAAS_IO_THREAD_NICE
-              value: "0"
-            - name: FAAS_IO_THREAD_CPUSET
-              value: "0"
+            # - name: FAAS_IO_THREAD_NICE
+            #   value: "0"
+            # - name: FAAS_IO_THREAD_CPUSET
+            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:

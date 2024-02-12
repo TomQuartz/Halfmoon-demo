@@ -134,22 +134,22 @@ func CreateCollectorTable(lambdaId string) {
 }
 
 func CreateBaselineTable(lambdaId string) {
-	_, _ = DBClient.CreateTable(&dynamodb.CreateTableInput{
-		BillingMode: aws.String("PAY_PER_REQUEST"),
-		AttributeDefinitions: []*dynamodb.AttributeDefinition{
-			{
-				AttributeName: aws.String("K"),
-				AttributeType: aws.String("S"),
-			},
-		},
-		KeySchema: []*dynamodb.KeySchemaElement{
-			{
-				AttributeName: aws.String("K"),
-				KeyType:       aws.String("HASH"),
-			},
-		},
-		TableName: aws.String(kTablePrefix + lambdaId),
-	})
+	// _, _ = DBClient.CreateTable(&dynamodb.CreateTableInput{
+	// 	BillingMode: aws.String("PAY_PER_REQUEST"),
+	// 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
+	// 		{
+	// 			AttributeName: aws.String("K"),
+	// 			AttributeType: aws.String("S"),
+	// 		},
+	// 	},
+	// 	KeySchema: []*dynamodb.KeySchemaElement{
+	// 		{
+	// 			AttributeName: aws.String("K"),
+	// 			KeyType:       aws.String("HASH"),
+	// 		},
+	// 	},
+	// 	TableName: aws.String(kTablePrefix + lambdaId),
+	// })
 }
 
 func CreateLambdaTables(lambdaId string) {
@@ -198,25 +198,26 @@ func WaitUntilAllDeleted(tablenames []string) {
 }
 
 func WaitUntilActive(tablename string) bool {
-	counter := 0
-	for {
-		res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
-		if err != nil {
-			counter += 1
-			fmt.Printf("%s DescribeTable error: %v\n", tablename, err)
-		} else {
-			if *res.Table.TableStatus == "ACTIVE" {
-				fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
-				return true
-			}
-			fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
-			// if *res.Table.TableStatus != "CREATING" && counter > 6 {
-			// 	fmt.Printf("[error] %s status: %s\n", tablename, *res.Table.TableStatus)
-			// 	return false
-			// }
-		}
-		time.Sleep(3 * time.Second)
-	}
+	// counter := 0
+	// for {
+	// 	res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
+	// 	if err != nil {
+	// 		counter += 1
+	// 		fmt.Printf("%s DescribeTable error: %v\n", tablename, err)
+	// 	} else {
+	// 		if *res.Table.TableStatus == "ACTIVE" {
+	// 			fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
+	// 			return true
+	// 		}
+	// 		fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
+	// 		// if *res.Table.TableStatus != "CREATING" && counter > 6 {
+	// 		// 	fmt.Printf("[error] %s status: %s\n", tablename, *res.Table.TableStatus)
+	// 		// 	return false
+	// 		// }
+	// 	}
+	// 	time.Sleep(3 * time.Second)
+	// }
+	return true
 }
 
 func WaitUntilAllActive(tablenames []string) bool {

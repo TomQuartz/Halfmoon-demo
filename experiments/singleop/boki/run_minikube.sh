@@ -2,7 +2,7 @@
 
 set -u
 
-BASE_DIR=`realpath .`
+BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
 BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v0
@@ -13,7 +13,6 @@ NUM_KEYS=100
 EXP_DIR=$BASE_DIR/results/QPS15  # $1=QPS15
 QPS=15                           # $2=15
 
-HELPER_SCRIPT=$ROOT_DIR/scripts/minikube_helper
 WRK_DIR=/usr/local/bin
 
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
@@ -66,10 +65,10 @@ kubectl apply -f "$BASE_DIR/k8s_files/boki-engine.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-gateway.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-storage.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-sequencer.yaml"
+sleep 60
 kubectl apply -f "$BASE_DIR/k8s_files/boki-controller.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/app.yaml"
-
-sleep 180
+sleep 120
 
 rm -rf $EXP_DIR
 mkdir -p $EXP_DIR

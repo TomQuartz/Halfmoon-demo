@@ -1,7 +1,7 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: nop-daemonset
+  name: nop
 spec:
   selector:
     matchLabels:
@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: nop
-          image: shengqipku/halfmoon-bench:sosp-ae
-          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/nop", "1"]
+          image: emptyredbox/halfmoon-bench:test-v0
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -23,21 +23,21 @@ spec:
               value: "8"
             - name: GOGC
               value: "1000"
-            - name: TABLE_PREFIX
-              valueFrom:
-                fieldRef:
-                  fieldPath: TABLE_PREFIX
+            # - name: FAAS_IO_THREAD_NICE
+            #   value: "0"
+            # - name: FAAS_IO_THREAD_CPUSET
+            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
-  updateStrategy:
-    type: RollingUpdate
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: singleop-daemonset
+  name: singleop
 spec:
   selector:
     matchLabels:
@@ -49,8 +49,8 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: shengqipku/halfmoon-bench:sosp-ae
-          command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/singleop", "2"]
+          image: emptyredbox/halfmoon-bench:test-v0
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -60,60 +60,17 @@ spec:
             - name: GOGC
               value: "1000"
             - name: TABLE_PREFIX
-              valueFrom:
-                fieldRef:
-                  fieldPath: TABLE_PREFIX
+              value: "jpyGegBc-"
             - name: NUM_KEYS
-              valueFrom:
-                fieldRef:
-                  fieldPath: NUM_KEYS
+              value: "100"
+            # - name: FAAS_IO_THREAD_NICE
+            #   value: "0"
+            # - name: FAAS_IO_THREAD_CPUSET
+            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
-  updateStrategy:
-    type: RollingUpdate
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
 ---
-apiVersion: v1
-kind: DaemonSet
-metadata:
-  name: prewarm-service
-spec:
-  selector:
-    matchLabels:
-      app: prewarm-service
-  template:
-    metadata:
-      labels:
-        app: prewarm-service
-    spec:
-      containers:
-      - name: prewarm-service
-        image: shengqipku/halfmoon-bench:sosp-ae
-        command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/prewarm", "3"]
-        volumeMounts:
-        - name: boki-volume
-          mountPath: /tmp/boki
-        env:
-        - name: FAAS_GO_MAX_PROC_FACTOR
-          value: "8"
-        - name: GOGC
-          value: "1000"
-        # - name: TABLE_PREFIX
-        #   valueFrom:
-        #     fieldRef:
-        #       fieldPath: metadata.namespace
-        # - name: NUM_KEYS
-        #   valueFrom:
-        #     fieldRef:
-        #       fieldPath: metadata.namespace
-        # - name: LoggingMode
-        #   valueFrom:
-        #     fieldRef:
-        #       fieldPath: metadata.namespace
-      volumes:
-      - name: boki-volume
-        hostPath:
-          path: /mnt/inmem/boki
-  updateStrategy:
-    type: RollingUpdate

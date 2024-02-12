@@ -16,30 +16,21 @@ spec:
       containers:
         - name: boki-engine
           image: shengqipku/halfmoon:sosp-ae
-          command: ["/boki/engine"]
-          args:
-            - --zookeeper_host=10.244.0.3:2181
-            - --listen_iface=eth0
-            - --root_path_for_ipc=/tmp/boki/ipc
-            - --func_config_file=/tmp/boki/func_config.json
-            - --num_io_workers=4
-            - --instant_rps_p_norm=0.8
-            - --io_uring_entries=2048
-            - --io_uring_fd_slots=4096
-            - --enable_shared_log
-            - --slog_engine_enable_cache
-            - --slog_engine_cache_cap_mb=1024
-            # - --slog_engine_propagate_auxdata
-            # - --use_txn_engine
-            # - --v=1
+          command: ["/tmp/scripts/engine_start.sh"]
           volumeMounts:
             - name: boki-data
               mountPath: /tmp/boki
             - name: cgroup-data
               mountPath: /tmp/root_cgroupfs
+            - name: engine-script
+              mountPath: /tmp/scripts/engine_start.sh
           env:
             - name: FAAS_CGROUP_FS_ROOT
               value: /tmp/root_cgroupfs
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
       volumes:
         - name: boki-data
           hostPath:
@@ -47,6 +38,9 @@ spec:
         - name: cgroup-data
           hostPath:
             path: /sys/fs/cgroup
+        - name: engine-script
+          hostPath:
+            path: /tmp/engine_start.sh
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
       restartPolicy: Always

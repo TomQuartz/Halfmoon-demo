@@ -3,9 +3,11 @@ kind: Pod
 metadata:
   name: zookeeper-setup
 spec:
+  nodeName: gateway1
   containers:
     - name: zookeeper-setup
       image: zookeeper:3.6.2
+      command: ["/tmp/boki/zk_setup.sh"]
       volumeMounts:
         - name: zk-setup-volume
           mountPath: /tmp/boki/zk_setup.sh

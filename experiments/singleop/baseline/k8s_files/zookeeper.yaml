@@ -3,9 +3,11 @@ kind: Pod
 metadata:
   name: zookeeper
 spec:
+  nodeName: gateway1
   containers:
-    - name: zookeeper
-      image: zookeeper:3.6.2
-      ports:
-        - containerPort: 2181
+  - name: zookeeper
+    image: zookeeper:3.6.2
+    ports:
+      - containerPort: 2181
+        hostPort: 2181
   restartPolicy: Always
