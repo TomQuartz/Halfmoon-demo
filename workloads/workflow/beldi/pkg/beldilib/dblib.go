@@ -26,88 +26,89 @@ All others are invisible to users
 var RESERVED = []string{"K", "ROWHASH", "LOGS", "LOGSIZE", "GCSIZE", "NEXTROW"}
 
 func LibRead(tablename string, key aws.JSONValue, projection []string) aws.JSONValue {
-	Key, err := dynamodbattribute.MarshalMap(key)
-	CHECK(err)
-	var res *dynamodb.GetItemOutput
-	if len(projection) == 0 {
-		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
-			TableName: aws.String(kTablePrefix + tablename),
-			Key:       Key,
-			// ConsistentRead: aws.Bool(true),
-		})
-	} else {
-		expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).Build()
-		CHECK(err)
-		res, err = DBClient.GetItem(&dynamodb.GetItemInput{
-			TableName:                aws.String(kTablePrefix + tablename),
-			Key:                      Key,
-			ProjectionExpression:     expr.Projection(),
-			ExpressionAttributeNames: expr.Names(),
-			// ConsistentRead:           aws.Bool(true),
-		})
-	}
-	CHECK(err)
+	// Key, err := dynamodbattribute.MarshalMap(key)
+	// CHECK(err)
+	// var res *dynamodb.GetItemOutput
+	// if len(projection) == 0 {
+	// 	res, err = DBClient.GetItem(&dynamodb.GetItemInput{
+	// 		TableName: aws.String(kTablePrefix + tablename),
+	// 		Key:       Key,
+	// 		// ConsistentRead: aws.Bool(true),
+	// 	})
+	// } else {
+	// 	expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).Build()
+	// 	CHECK(err)
+	// 	res, err = DBClient.GetItem(&dynamodb.GetItemInput{
+	// 		TableName:                aws.String(kTablePrefix + tablename),
+	// 		Key:                      Key,
+	// 		ProjectionExpression:     expr.Projection(),
+	// 		ExpressionAttributeNames: expr.Names(),
+	// 		// ConsistentRead:           aws.Bool(true),
+	// 	})
+	// }
+	// CHECK(err)
 	item := aws.JSONValue{}
-	err = dynamodbattribute.UnmarshalMap(res.Item, &item)
-	CHECK(err)
+	// err = dynamodbattribute.UnmarshalMap(res.Item, &item)
+	// CHECK(err)
 	return item
 }
 
 func LibPut(tablename string, key aws.JSONValue, values aws.JSONValue) bool {
-	Key, err := dynamodbattribute.MarshalMap(key)
-	CHECK(err)
+	// Key, err := dynamodbattribute.MarshalMap(key)
+	// CHECK(err)
 
-	updateBuilder := expression.UpdateBuilder{}
-	condBuilder := expression.Value(0).Equal(expression.Value(0))
-	for k, _ := range key {
-		condBuilder = condBuilder.And(expression.AttributeNotExists(expression.Name(k)))
-	}
-	for k, v := range values {
-		updateBuilder = updateBuilder.Set(expression.Name(k), expression.Value(v))
-	}
-	builder := expression.NewBuilder().WithCondition(condBuilder)
-	if len(values) != 0 {
-		builder = builder.WithUpdate(updateBuilder)
-	}
-	expr, err := builder.Build()
-	CHECK(err)
-	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName:                 aws.String(kTablePrefix + tablename),
-		Key:                       Key,
-		ConditionExpression:       expr.Condition(),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-	})
-	if err == nil {
-		return true
-	} else {
-		AssertConditionFailure(err)
-		return false
-	}
+	// updateBuilder := expression.UpdateBuilder{}
+	// condBuilder := expression.Value(0).Equal(expression.Value(0))
+	// for k, _ := range key {
+	// 	condBuilder = condBuilder.And(expression.AttributeNotExists(expression.Name(k)))
+	// }
+	// for k, v := range values {
+	// 	updateBuilder = updateBuilder.Set(expression.Name(k), expression.Value(v))
+	// }
+	// builder := expression.NewBuilder().WithCondition(condBuilder)
+	// if len(values) != 0 {
+	// 	builder = builder.WithUpdate(updateBuilder)
+	// }
+	// expr, err := builder.Build()
+	// CHECK(err)
+	// _, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
+	// 	TableName:                 aws.String(kTablePrefix + tablename),
+	// 	Key:                       Key,
+	// 	ConditionExpression:       expr.Condition(),
+	// 	ExpressionAttributeNames:  expr.Names(),
+	// 	ExpressionAttributeValues: expr.Values(),
+	// 	UpdateExpression:          expr.Update(),
+	// })
+	// if err == nil {
+	// 	return true
+	// } else {
+	// 	AssertConditionFailure(err)
+	// 	return false
+	// }
+	return true
 }
 
 func LibWrite(tablename string, key aws.JSONValue, update map[expression.NameBuilder]expression.OperandBuilder) {
-	Key, err := dynamodbattribute.MarshalMap(key)
-	CHECK(err)
-	if len(update) == 0 {
-		panic("update never be empty")
-	}
-	updateBuilder := expression.UpdateBuilder{}
-	for k, v := range update {
-		updateBuilder = updateBuilder.Set(k, v)
-	}
-	builder := expression.NewBuilder().WithUpdate(updateBuilder)
-	expr, err := builder.Build()
-	CHECK(err)
-	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName:                 aws.String(kTablePrefix + tablename),
-		Key:                       Key,
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-	})
-	CHECK(err)
+	// Key, err := dynamodbattribute.MarshalMap(key)
+	// CHECK(err)
+	// if len(update) == 0 {
+	// 	panic("update never be empty")
+	// }
+	// updateBuilder := expression.UpdateBuilder{}
+	// for k, v := range update {
+	// 	updateBuilder = updateBuilder.Set(k, v)
+	// }
+	// builder := expression.NewBuilder().WithUpdate(updateBuilder)
+	// expr, err := builder.Build()
+	// CHECK(err)
+	// _, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
+	// 	TableName:                 aws.String(kTablePrefix + tablename),
+	// 	Key:                       Key,
+	// 	ExpressionAttributeNames:  expr.Names(),
+	// 	ExpressionAttributeValues: expr.Values(),
+	// 	UpdateExpression:          expr.Update(),
+	// })
+	// CHECK(err)
 }
 
 func LibCondWrite(tablename string, key string, update map[expression.NameBuilder]expression.OperandBuilder,
@@ -694,7 +695,8 @@ func Read(env *Env, tablename string, key string) interface{} {
 	if TYPE == "BASELINE" {
 		item = LibRead(tablename, aws.JSONValue{"K": key}, []string{"V"})
 	} else {
-		item = EOSRead(env, tablename, key, []string{"V"})
+		// item = EOSRead(env, tablename, key, []string{"V"})
+		item = aws.JSONValue{}
 	}
 	if res, ok := item["V"]; ok {
 		return res
@@ -708,7 +710,7 @@ func Write(env *Env, tablename string, key string,
 	if TYPE == "BASELINE" {
 		LibWrite(tablename, aws.JSONValue{"K": key}, update)
 	} else {
-		EOSWrite(env, tablename, key, update)
+		// EOSWrite(env, tablename, key, update)
 	}
 }
 
@@ -905,42 +907,43 @@ func LibQuery(tablename string, cond expression.KeyConditionBuilder, projection 
 }
 
 func LastRow(tablename string, key string) string {
-	projection := []string{"ROWHASH", "NEXTROW"}
-	cond := expression.Key("K").Equal(expression.Value(key))
-	expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).WithKeyCondition(cond).Build()
-	CHECK(err)
-	res, err := DBClient.Query(&dynamodb.QueryInput{
-		TableName:                 aws.String(kTablePrefix + tablename),
-		KeyConditionExpression:    expr.KeyCondition(),
-		ProjectionExpression:      expr.Projection(),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		ConsistentRead:            aws.Bool(true),
-	})
-	CHECK(err)
-	var items []aws.JSONValue
-	err = dynamodbattribute.UnmarshalListOfMaps(res.Items, &items)
-	CHECK(err)
-	if len(items) == 0 {
-		return ""
-	}
-	idx := make(map[string]string)
-	for _, item := range items {
-		row := item["ROWHASH"].(string)
-		if next, ok := item["NEXTROW"].(string); ok {
-			idx[row] = next
-		}
-	}
-	cur := "HEAD"
-	for {
-		if next, ok := idx[cur]; ok {
-			cur = next
-			continue
-		} else {
-			break
-		}
-	}
-	return cur
+	// projection := []string{"ROWHASH", "NEXTROW"}
+	// cond := expression.Key("K").Equal(expression.Value(key))
+	// expr, err := expression.NewBuilder().WithProjection(BuildProjection(projection)).WithKeyCondition(cond).Build()
+	// CHECK(err)
+	// res, err := DBClient.Query(&dynamodb.QueryInput{
+	// 	TableName:                 aws.String(kTablePrefix + tablename),
+	// 	KeyConditionExpression:    expr.KeyCondition(),
+	// 	ProjectionExpression:      expr.Projection(),
+	// 	ExpressionAttributeNames:  expr.Names(),
+	// 	ExpressionAttributeValues: expr.Values(),
+	// 	ConsistentRead:            aws.Bool(true),
+	// })
+	// CHECK(err)
+	// var items []aws.JSONValue
+	// err = dynamodbattribute.UnmarshalListOfMaps(res.Items, &items)
+	// CHECK(err)
+	// if len(items) == 0 {
+	// 	return ""
+	// }
+	// idx := make(map[string]string)
+	// for _, item := range items {
+	// 	row := item["ROWHASH"].(string)
+	// 	if next, ok := item["NEXTROW"].(string); ok {
+	// 		idx[row] = next
+	// 	}
+	// }
+	// cur := "HEAD"
+	// for {
+	// 	if next, ok := idx[cur]; ok {
+	// 		cur = next
+	// 		continue
+	// 	} else {
+	// 		break
+	// 	}
+	// }
+	// return cur
+	return ""
 }
 
 func TQuery(env *Env, tablename string, key string) interface{} {
