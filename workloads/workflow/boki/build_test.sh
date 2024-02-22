@@ -5,5 +5,4 @@ make media
 make retwis
 make rw
 make singleop
-make switching
 make recovery

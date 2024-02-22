@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/internal/utils"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/mitchellh/mapstructure"
@@ -29,8 +28,8 @@ func Post(env *cayonlib.Env, input PostInput) {
 	}
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	postID := fmt.Sprintf("%v-%v", timestamp, env.InstanceId)
-	cayonlib.Write(env, Tpost(), postID, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(input.Content),
+	cayonlib.Write(env, Tpost(), postID, map[string]interface{}{
+		"V": input.Content,
 	})
 
 	userInfo := cayonlib.Read(env, Tuser(), input.Username)

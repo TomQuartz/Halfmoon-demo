@@ -2,8 +2,8 @@ package core
 
 import (
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 )
 
@@ -32,7 +32,7 @@ func UploadMovie(env *cayonlib.Env, reqId string, title string, rating int32) {
 }
 
 func RegisterMovieId(env *cayonlib.Env, title string, movieId string) {
-	cayonlib.Write(env, TMovieId(), title, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(aws.JSONValue{"movieId": movieId, "title": title}),
+	cayonlib.Write(env, TMovieId(), title, map[string]interface{}{
+		"V": aws.JSONValue{"movieId": movieId, "title": title},
 	})
 }

@@ -8,7 +8,6 @@ import (
 
 	"math/rand"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/internal/utils"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 
@@ -69,8 +68,8 @@ func runOnce(env *cayonlib.Env, keys []int) {
 		// time.Sleep(sleepDuration)
 	}
 	for i := nReads; i < int(nOps); i++ {
-		cayonlib.Write(env, table, strconv.Itoa(keys[i]), map[expression.NameBuilder]expression.OperandBuilder{
-			expression.Name("V"): expression.Value(value),
+		cayonlib.Write(env, table, strconv.Itoa(keys[i]), map[string]interface{}{
+			"V": value,
 		})
 		// time.Sleep(sleepDuration)
 	}

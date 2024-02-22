@@ -2,7 +2,6 @@ package flight
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/internal/hotel/main/data"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/mitchellh/mapstructure"
@@ -21,8 +20,8 @@ func BaseReserveFlight(env *cayonlib.Env, flightId string, userId string) bool {
 	if flight.Cap == 0 {
 		return false
 	}
-	cayonlib.Write(env, data.Tflight(), flightId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V.cap"): expression.Value(flight.Cap),
+	cayonlib.Write(env, data.Tflight(), flightId, map[string]interface{}{
+		"V": flight,
 	})
 	return true
 }
@@ -43,11 +42,11 @@ func ReserveFlight(env *cayonlib.Env, flightId string, userId string) bool {
 }
 
 func AddFlight(env *cayonlib.Env, flightId string, cap int32) {
-	cayonlib.Write(env, data.Tflight(), flightId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(Flight{
+	cayonlib.Write(env, data.Tflight(), flightId, map[string]interface{}{
+		"V": Flight{
 			FlightId:  flightId,
 			Cap:       cap,
 			Customers: []string{},
-		}),
+		},
 	})
 }

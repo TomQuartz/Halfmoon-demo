@@ -1,5 +1,5 @@
 FROM shengqipku/halfmoon:sosp-ae as halfmoon
-FROM golang:1.14-buster as builder
+FROM golang:1.22.0 as builder
 
 COPY --from=halfmoon /src/halfmoon /halfmoon
 COPY . /workflow/workloads
@@ -25,7 +25,7 @@ RUN cd /workflow/workloads/optimal && \
     make switching && \
     make recovery
 
-FROM ubuntu:focal
+FROM ubuntu:22.04
 
 COPY --from=builder  /workflow/workloads/beldi/bin  /beldi-bin
 COPY --from=builder  /workflow/workloads/boki/bin   /bokiflow-bin

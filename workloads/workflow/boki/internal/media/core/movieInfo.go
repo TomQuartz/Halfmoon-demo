@@ -1,14 +1,13 @@
 package core
 
 import (
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/mitchellh/mapstructure"
 )
 
 func WriteMovieInfo(env *cayonlib.Env, info MovieInfo) {
-	cayonlib.Write(env, TMovieInfo(), info.MovieId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(info),
+	cayonlib.Write(env, TMovieInfo(), info.MovieId, map[string]interface{}{
+		"V": info,
 	})
 }
 
@@ -25,7 +24,7 @@ func UpdateRating(env *cayonlib.Env, movieId string, sumUncommittedRating int32,
 	cayonlib.CHECK(mapstructure.Decode(item, &movieInfo))
 	movieInfo.AvgRating = (movieInfo.AvgRating*float64(movieInfo.NumRating) + float64(sumUncommittedRating)) / float64(movieInfo.NumRating+numUncommittedRating)
 	movieInfo.NumRating += numUncommittedRating
-	cayonlib.Write(env, TMovieId(), movieId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(movieInfo),
+	cayonlib.Write(env, TMovieId(), movieId, map[string]interface{}{
+		"V": movieInfo,
 	})
 }

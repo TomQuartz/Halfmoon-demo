@@ -3,13 +3,13 @@ kind: Pod
 metadata:
   name: boki-controller
 spec:
-  nodeName: gateway1
+  # nodeName: gateway1
   containers:
     - name: boki-controller
       image: shengqipku/halfmoon:sosp-ae
       command: ["/boki/controller"]
       args:
-        - --zookeeper_host=10.10.1.8:2181
+        - --zookeeper_host=192.168.49.2:2181
         - --metalog_replicas=3
         - --userlog_replicas=3
         - --index_replicas=8

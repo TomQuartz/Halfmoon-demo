@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 
 	"cs.utexas.edu/zjia/faas"
@@ -34,8 +33,8 @@ func Handler(env *cayonlib.Env) interface{} {
 	results["Read"] = time.Since(start).Microseconds()
 
 	start = time.Now()
-	cayonlib.Write(env, table, strconv.Itoa(rand.Intn(nKeys)), map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(value),
+	cayonlib.Write(env, table, strconv.Itoa(rand.Intn(nKeys)), map[string]interface{}{
+		"V": value,
 	})
 	results["Write"] = time.Since(start).Microseconds()
 

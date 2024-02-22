@@ -1,14 +1,13 @@
 package core
 
 import (
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/mitchellh/mapstructure"
 )
 
 func WriteCastInfo(env *cayonlib.Env, info CastInfo) {
-	cayonlib.Write(env, TCastInfo(), info.CastInfoId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(info),
+	cayonlib.Write(env, TCastInfo(), info.CastInfoId, map[string]interface{}{
+		"V": info,
 	})
 }
 

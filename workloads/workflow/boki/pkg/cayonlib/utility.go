@@ -55,6 +55,19 @@ func CreateTxnTables(lambdaId string) {
 
 func DeleteTable(tablename string) {
 	// _, _ = DBClient.DeleteTable(&dynamodb.DeleteTableInput{TableName: aws.String(kTablePrefix + tablename)})
+	var cursor uint64
+	match := kTablePrefix + tablename + ":*"
+	for {
+		keys, cursor, err := RDBClient.Scan(ctx, cursor, match, 10000).Result()
+		CHECK(err)
+		if len(keys) > 0 {
+			err := RDBClient.Del(ctx, keys...).Err()
+			CHECK(err)
+		}
+		if cursor == 0 {
+			break
+		}
+	}
 }
 
 func DeleteLambdaTables(lambdaId string) {
@@ -135,4 +148,9 @@ func Populate(tablename string, key string, value interface{}, baseline bool) {
 	// 		expression.Name("VERSION"): expression.Value(0),
 	// 		expression.Name("V"):       expression.Value(value),
 	// 	})
+	LibWrite(tablename, key,
+		map[string]interface{}{
+			"VERSION": uint64(0),
+			"V":       value,
+		})
 }

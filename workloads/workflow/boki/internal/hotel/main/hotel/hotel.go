@@ -2,7 +2,6 @@ package hotel
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/internal/hotel/main/data"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/mitchellh/mapstructure"
@@ -21,8 +20,8 @@ func BaseReserveHotel(env *cayonlib.Env, hotelId string, userId string) bool {
 	if hotel.Cap == 0 {
 		return false
 	}
-	cayonlib.Write(env, data.Thotel(), hotelId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V.Cap"): expression.Value(hotel.Cap),
+	cayonlib.Write(env, data.Thotel(), hotelId, map[string]interface{}{
+		"V": hotel,
 	})
 	return true
 }
@@ -43,11 +42,11 @@ func ReserveHotel(env *cayonlib.Env, hotelId string, userId string) bool {
 }
 
 func AddHotel(env *cayonlib.Env, hotelId string, cap int32) {
-	cayonlib.Write(env, data.Thotel(), hotelId, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(Hotel{
+	cayonlib.Write(env, data.Thotel(), hotelId, map[string]interface{}{
+		"V": Hotel{
 			HotelId:   hotelId,
 			Cap:       cap,
 			Customers: []string{},
-		}),
+		},
 	})
 }

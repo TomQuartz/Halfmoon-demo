@@ -1,7 +1,9 @@
 package cayonlib
 
 import (
+	"encoding/json"
 	"log"
+
 	// "fmt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	// "github.com/mitchellh/mapstructure"
@@ -42,6 +44,30 @@ import (
 // 	return item
 // }
 
+func LibRead(tablename string, key string, fields []string) map[string]interface{} {
+	Key := kTablePrefix + tablename + ":" + key
+	item := make(map[string]interface{})
+	var val interface{}
+	if len(fields) == 0 {
+		res, err := RDBClient.HGetAll(ctx, Key).Result()
+		CHECK(err)
+		for k, v := range res {
+			CHECK(json.Unmarshal([]byte(v), &val))
+			item[k] = val
+		}
+	} else {
+		res, err := RDBClient.HMGet(ctx, Key, fields...).Result()
+		CHECK(err)
+		for i, v := range res {
+			if v_string, ok := v.(string); ok {
+				CHECK(json.Unmarshal([]byte(v_string), &val))
+				item[fields[i]] = val
+			}
+		}
+	}
+	return item
+}
+
 // func LibWrite(tablename string, key aws.JSONValue,
 // 	update map[expression.NameBuilder]expression.OperandBuilder) {
 // 	Key, err := dynamodbattribute.MarshalMap(key)
@@ -65,6 +91,21 @@ import (
 // 	})
 // 	CHECK(err)
 // }
+
+func LibWrite(tablename string, key string, update map[string]interface{}) {
+	if len(update) == 0 {
+		panic("update never be empty")
+	}
+	Key := kTablePrefix + tablename + ":" + key
+	var builder = make(map[string]interface{})
+	for k, v := range update {
+		val, err := json.Marshal(v)
+		CHECK(err)
+		builder[k] = val
+	}
+	err := RDBClient.HSet(ctx, Key, builder).Err()
+	CHECK(err)
+}
 
 func LibScanWithLast(tablename string, projection []string, last map[string]*dynamodb.AttributeValue) []aws.JSONValue {
 	var res *dynamodb.ScanOutput
@@ -134,9 +175,7 @@ func LibScan(tablename string, projection []string) []aws.JSONValue {
 	return LibScanWithLast(tablename, projection, nil)
 }
 
-func CondWrite(env *Env, tablename string, key string,
-	update map[expression.NameBuilder]expression.OperandBuilder,
-	cond expression.ConditionBuilder) {
+func CondWrite(env *Env, tablename string, key string, update map[string]interface{}) {
 	newLog, preWriteLog := ProposeNextStep(env, aws.JSONValue{
 		"type":  "PreWrite",
 		"key":   key,
@@ -186,6 +225,48 @@ func CondWrite(env *Env, tablename string, key string,
 	// 	AssertConditionFailure(err)
 	// }
 
+	Key := kTablePrefix + tablename + ":" + key
+	// Define the Lua script. We use Lua script for atomicity.
+	script := `
+local exist = redis.call('HExists', KEYS[1], 'VERSION')
+local doUpdate = 0
+local seqNum
+
+if not exist then
+	doUpdate = 1
+else
+	seqNum = tonumber(ARGV[1])
+	local currentVersion = tonumber(redis.call('HGet', KEYS[1], 'VERSION'))
+
+	if currentVersion < seqNum then
+		doUpdate = 1
+	end
+end
+
+if doUpdate then
+	if #KEYS == 2 then
+		redis.call('HMSet', KEYS[1], 'VERSION', seqNum, KEYS[2], ARGV[2])
+	else
+		redis.call('HSet', KEYS[1], 'VERSION', seqNum)
+		for i=2, #KEYS, 1 do
+			redis.call('HSet', KEYS[1], KEYS[i], ARGV[i])
+		end
+	end
+end
+
+return doUpdate
+`
+	keys := []string{Key}
+	args := []interface{}{preWriteLog.SeqNum}
+	for k, v := range update {
+		val, err := json.Marshal(v)
+		CHECK(err)
+		keys = append(keys, k)
+		args = append(args, val)
+	}
+	_, err := RDBClient.Eval(ctx, script, keys, args...).Result()
+	CHECK(err)
+
 	LogStepResult(env, env.InstanceId, preWriteLog.StepNumber, aws.JSONValue{
 		"type":  "PostWrite",
 		"key":   key,
@@ -193,8 +274,8 @@ func CondWrite(env *Env, tablename string, key string,
 	})
 }
 
-func Write(env *Env, tablename string, key string, update map[expression.NameBuilder]expression.OperandBuilder) {
-	CondWrite(env, tablename, key, update, expression.ConditionBuilder{})
+func Write(env *Env, tablename string, key string, update map[string]interface{}) {
+	CondWrite(env, tablename, key, update)
 }
 
 func Read(env *Env, tablename string, key string) interface{} {
@@ -205,14 +286,14 @@ func Read(env *Env, tablename string, key string) interface{} {
 		env.StepNumber += 1
 	} else {
 		// log.Printf("[INFO] Read data from DB")
-		// item := LibRead(tablename, aws.JSONValue{"K": key}, []string{"V"})
-		item := aws.JSONValue{}
-		var res interface{}
-		if tmp, ok := item["V"]; ok {
-			res = tmp
-		} else {
-			res = nil
-		}
+		item := LibRead(tablename, key, []string{"V"})
+		res := item["V"]
+		// var res interface{}
+		// if tmp, ok := item["V"]; ok {
+		// 	res = tmp
+		// } else {
+		// 	res = nil
+		// }
 		newLog, intentLog = ProposeNextStep(env, aws.JSONValue{
 			"type":   "Read",
 			"key":    key,

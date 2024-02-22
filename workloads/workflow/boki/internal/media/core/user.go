@@ -3,13 +3,13 @@ package core
 import (
 	"crypto/sha512"
 	"encoding/hex"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 	"github.com/lithammer/shortuuid"
 	"github.com/mitchellh/mapstructure"
-	"time"
 )
 
 func RegisterUserWithUserId(env *cayonlib.Env, firstName string, lastName string, username string, password string,
@@ -26,8 +26,8 @@ func RegisterUserWithUserId(env *cayonlib.Env, firstName string, lastName string
 		Password:  passwordHash,
 		Salt:      salt,
 	}
-	cayonlib.Write(env, TUser(), username, map[expression.NameBuilder]expression.OperandBuilder{
-		expression.Name("V"): expression.Value(user),
+	cayonlib.Write(env, TUser(), username, map[string]interface{}{
+		"V": user,
 	})
 }
 

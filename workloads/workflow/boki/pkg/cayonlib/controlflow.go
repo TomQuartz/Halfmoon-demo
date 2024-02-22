@@ -8,7 +8,6 @@ import (
 
 	// "github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 
 	// lambdaSdk "github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/golang/snappy"
@@ -299,10 +298,7 @@ func TPLCommit(env *Env) {
 		}
 		tablename := txnLog.WriteOp["tablename"].(string)
 		key := txnLog.WriteOp["key"].(string)
-		update := map[expression.NameBuilder]expression.OperandBuilder{}
-		for kk, vv := range txnLog.WriteOp["value"].(map[string]interface{}) {
-			update[expression.Name(kk)] = expression.Value(vv)
-		}
+		update := txnLog.WriteOp["value"].(map[string]interface{})
 		Write(env, tablename, key, update)
 		Unlock(env, tablename, key)
 	}
@@ -351,6 +347,7 @@ func wrapperInternal(f func(*Env) interface{}, iw *InputWrapper, env *Env) (Outp
 			"ST":         time.Now().Unix(),
 		})
 	}
+	// Annotated by the original author.
 	//ok := LibPut(env.IntentTable, aws.JSONValue{"InstanceId": env.InstanceId},
 	//	aws.JSONValue{"DONE": false, "ASYNC": iw.Async})
 	//if !ok {
