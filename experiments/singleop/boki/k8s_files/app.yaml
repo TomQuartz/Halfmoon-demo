@@ -14,9 +14,7 @@ spec:
       containers:
         - name: nop
           image: emptyredbox/halfmoon-bench:test-v4
-          # command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
-          command: [ "/bin/bash", "-c", "--" ]
-          args: [ "while true; do sleep 30; done;" ]
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -52,9 +50,7 @@ spec:
       containers:
         - name: singleop
           image: emptyredbox/halfmoon-bench:test-v4
-          # command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
-          command: [ "/bin/bash", "-c", "--" ]
-          args: [ "while true; do sleep 30; done;" ]
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
