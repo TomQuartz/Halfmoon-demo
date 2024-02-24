@@ -1,32 +1,32 @@
 package cayonlib
 
-// import (
-// 	"fmt"
-// 	"time"
+import (
+	"fmt"
+	"time"
 
-// 	"github.com/aws/aws-sdk-go/aws"
-// 	"github.com/aws/aws-sdk-go/aws/awserr"
-// 	"github.com/aws/aws-sdk-go/service/dynamodb"
-// 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-// )
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
+)
 
 func CreateMainTable(lambdaId string) {
-	// _, _ = DBClient.CreateTable(&dynamodb.CreateTableInput{
-	// 	BillingMode: aws.String("PAY_PER_REQUEST"),
-	// 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
-	// 		{
-	// 			AttributeName: aws.String("K"),
-	// 			AttributeType: aws.String("S"),
-	// 		},
-	// 	},
-	// 	KeySchema: []*dynamodb.KeySchemaElement{
-	// 		{
-	// 			AttributeName: aws.String("K"),
-	// 			KeyType:       aws.String("HASH"),
-	// 		},
-	// 	},
-	// 	TableName: aws.String(kTablePrefix + lambdaId),
-	// })
+	_, _ = DBClient.CreateTable(&dynamodb.CreateTableInput{
+		BillingMode: aws.String("PAY_PER_REQUEST"),
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("K"),
+				AttributeType: aws.String("S"),
+			},
+		},
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{
+				AttributeName: aws.String("K"),
+				KeyType:       aws.String("HASH"),
+			},
+		},
+		TableName: aws.String(kTablePrefix + lambdaId),
+	})
 }
 
 func CreateLogTable(lambdaId string) {
@@ -54,7 +54,7 @@ func CreateTxnTables(lambdaId string) {
 }
 
 func DeleteTable(tablename string) {
-	// _, _ = DBClient.DeleteTable(&dynamodb.DeleteTableInput{TableName: aws.String(kTablePrefix + tablename)})
+	_, _ = DBClient.DeleteTable(&dynamodb.DeleteTableInput{TableName: aws.String(kTablePrefix + tablename)})
 }
 
 func DeleteLambdaTables(lambdaId string) {
@@ -64,20 +64,20 @@ func DeleteLambdaTables(lambdaId string) {
 }
 
 func WaitUntilDeleted(tablename string) {
-	// for {
-	// 	res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
-	// 	if err != nil {
-	// 		if aerr, ok := err.(awserr.Error); ok {
-	// 			switch aerr.Code() {
-	// 			case dynamodb.ErrCodeResourceNotFoundException:
-	// 				return
-	// 			}
-	// 		}
-	// 	} else if *res.Table.TableStatus != "DELETING" {
-	// 		DeleteTable(tablename)
-	// 	}
-	// 	time.Sleep(3 * time.Second)
-	// }
+	for {
+		res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				switch aerr.Code() {
+				case dynamodb.ErrCodeResourceNotFoundException:
+					return
+				}
+			}
+		} else if *res.Table.TableStatus != "DELETING" {
+			DeleteTable(tablename)
+		}
+		time.Sleep(3 * time.Second)
+	}
 }
 
 func WaitUntilAllDeleted(tablenames []string) {
@@ -87,24 +87,23 @@ func WaitUntilAllDeleted(tablenames []string) {
 }
 
 func WaitUntilActive(tablename string) bool {
-	// counter := 0
-	// for {
-	// 	res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
-	// 	if err != nil {
-	// 		counter += 1
-	// 		fmt.Printf("%s DescribeTable error: %v\n", tablename, err)
-	// 	} else {
-	// 		if *res.Table.TableStatus == "ACTIVE" {
-	// 			return true
-	// 		}
-	// 		fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
-	// 		if *res.Table.TableStatus != "CREATING" && counter > 6 {
-	// 			return false
-	// 		}
-	// 	}
-	// 	time.Sleep(3 * time.Second)
-	// }
-	return true
+	counter := 0
+	for {
+		res, err := DBClient.DescribeTable(&dynamodb.DescribeTableInput{TableName: aws.String(kTablePrefix + tablename)})
+		if err != nil {
+			counter += 1
+			fmt.Printf("%s DescribeTable error: %v\n", tablename, err)
+		} else {
+			if *res.Table.TableStatus == "ACTIVE" {
+				return true
+			}
+			fmt.Printf("%s status: %s\n", tablename, *res.Table.TableStatus)
+			if *res.Table.TableStatus != "CREATING" && counter > 6 {
+				return false
+			}
+		}
+		time.Sleep(3 * time.Second)
+	}
 }
 
 func WaitUntilAllActive(tablenames []string) bool {
@@ -130,9 +129,9 @@ func WriteNRows(tablename string, key string, n int) {
 }
 
 func Populate(tablename string, key string, value interface{}, baseline bool) {
-	// LibWrite(tablename, aws.JSONValue{"K": key},
-	// 	map[expression.NameBuilder]expression.OperandBuilder{
-	// 		expression.Name("VERSION"): expression.Value(0),
-	// 		expression.Name("V"):       expression.Value(value),
-	// 	})
+	LibWrite(tablename, aws.JSONValue{"K": key},
+		map[expression.NameBuilder]expression.OperandBuilder{
+			expression.Name("VERSION"): expression.Value(0),
+			expression.Name("V"):       expression.Value(value),
+		})
 }

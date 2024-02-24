@@ -3,12 +3,20 @@ package cayonlib
 import (
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-var sess = session.Must(session.NewSessionWithOptions(session.Options{
-	SharedConfigState: session.SharedConfigEnable,
+// var sess = session.Must(session.NewSessionWithOptions(session.Options{
+// 	SharedConfigState: session.SharedConfigEnable,
+// }))
+
+// var DBClient = dynamodb.New(sess)
+
+var sess = session.Must(session.NewSession(&aws.Config{
+	Region:   aws.String("ap-southeast-1"),
+	Endpoint: aws.String("http://10.96.128.129:8000"),
 }))
 
 var DBClient = dynamodb.New(sess)

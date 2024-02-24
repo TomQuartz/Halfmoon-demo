@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: boki-gateway
 spec:
-  nodeName: gateway1
+  # nodeName: gateway1
   containers:
     - name: boki-gateway
       image: shengqipku/halfmoon:sosp-ae
@@ -12,7 +12,7 @@ spec:
           hostPort: 8080
       command: ["/boki/gateway"]
       args:
-        - --zookeeper_host=10.10.1.8:2181
+        - --zookeeper_host=10.96.128.128:2181
         - --listen_iface=eth0
         - --http_port=8080
         - --func_config_file=/tmp/boki/func_config.json

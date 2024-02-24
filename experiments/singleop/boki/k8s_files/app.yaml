@@ -14,7 +14,7 @@ spec:
       containers:
         - name: nop
           image: emptyredbox/halfmoon-bench:test-v0
-          command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/nop", "1"]
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -50,7 +50,7 @@ spec:
       containers:
         - name: singleop
           image: emptyredbox/halfmoon-bench:test-v0
-          command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/singleop", "2"]
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
@@ -60,9 +60,15 @@ spec:
             - name: GOGC
               value: "1000"
             - name: TABLE_PREFIX
-              value: "jpyGegBc-"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
             - name: NUM_KEYS
-              value: "100"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: NUM_KEYS
             # - name: FAAS_IO_THREAD_NICE
             #   value: "0"
             # - name: FAAS_IO_THREAD_CPUSET
