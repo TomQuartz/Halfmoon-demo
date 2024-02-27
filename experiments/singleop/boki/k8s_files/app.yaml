@@ -13,24 +13,25 @@ spec:
     spec:
       containers:
         - name: nop
-          image: emptyredbox/halfmoon-bench:test-v0
+          image: emptyredbox/halfmoon-bench:test-v9
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
           env:
             - name: FAAS_GO_MAX_PROC_FACTOR
               value: "8"
             - name: GOGC
               value: "1000"
-            # - name: FAAS_IO_THREAD_NICE
-            #   value: "0"
-            # - name: FAAS_IO_THREAD_CPUSET
-            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /home/docker/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
 ---
@@ -49,11 +50,13 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: emptyredbox/halfmoon-bench:test-v0
+          image: emptyredbox/halfmoon-bench:test-v9
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
           env:
             - name: FAAS_GO_MAX_PROC_FACTOR
               value: "8"
@@ -69,13 +72,12 @@ spec:
                 configMapKeyRef:
                   name: env-config
                   key: NUM_KEYS
-            # - name: FAAS_IO_THREAD_NICE
-            #   value: "0"
-            # - name: FAAS_IO_THREAD_CPUSET
-            #   value: "0"
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /home/docker/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node

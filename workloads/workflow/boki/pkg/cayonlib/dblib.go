@@ -175,6 +175,7 @@ func CondWrite(env *Env, tablename string, key string,
 	expr, err := expression.NewBuilder().WithCondition(condBuilder).WithUpdate(updateBuilder).Build()
 	CHECK(err)
 
+	log.Printf("[INFO] Write data to DB")
 	_, err = DBClient.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName:                 aws.String(kTablePrefix + tablename),
 		Key:                       Key,
@@ -205,7 +206,7 @@ func Read(env *Env, tablename string, key string) interface{} {
 	if intentLog != nil {
 		env.StepNumber += 1
 	} else {
-		// log.Printf("[INFO] Read data from DB")
+		log.Printf("[INFO] Read data from DB")
 		item := LibRead(tablename, aws.JSONValue{"K": key}, []string{"V"})
 		var res interface{}
 		if tmp, ok := item["V"]; ok {

@@ -7,3 +7,5 @@ make rw
 make singleop
 make switching
 make recovery
+
+rm -rf ./bin/

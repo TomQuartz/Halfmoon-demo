@@ -2,8 +2,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: zookeeper
+  labels:
+    app.kubernetes.io/name: zookeeper
 spec:
-  nodeName: gateway1
+  # nodeName: gateway1
   containers:
   - name: zookeeper
     image: zookeeper:3.6.2

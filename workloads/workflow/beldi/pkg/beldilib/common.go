@@ -1,23 +1,18 @@
 package beldilib
 
 import (
+	"os"
+	"strconv"
+
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	// "github.com/aws/aws-sdk-go/service/lambda"
-	"strconv"
-	"os"
 )
 
-var sess = session.Must(session.NewSessionWithOptions(session.Options{
-	SharedConfigState: session.SharedConfigEnable,
+var sess = session.Must(session.NewSession(&aws.Config{
+	Region:   aws.String("ap-southeast-1"),
+	Endpoint: aws.String("http://10.96.128.129:8000"),
 }))
-
-// var LambdaClient = lambda.New(sess)
-
-//var url = "http://133.130.115.39:8000"
-//var DBClient = dynamodb.New(sess, &aws.Config{Endpoint: aws.String(url),
-//	Region:                        aws.String("us-east-1"),
-//	CredentialsChainVerboseErrors: aws.Bool(true)})
 
 var DBClient = dynamodb.New(sess)
 

@@ -5,12 +5,13 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v9
+BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v6
 
 # Do I need them?
 NUM_KEYS=100
 EXP_DIR=$BASE_DIR/results/QPS15  # $1=QPS15
 QPS=15                           # $2=15
+LOGMODE="write"
 
 WRK_DIR=/usr/local/bin
 
@@ -32,23 +33,25 @@ minikube ssh -- docker pull $BENCH_IMAGE
 
 minikube ssh -- docker run -v /home/docker:/tmp \
     $BENCH_IMAGE \
-    cp -r /bokiflow-bin/singleop /tmp/
+    cp -r /optimal-bin/singleop /tmp/
 
 # create a pod for database
 kubectl apply -f "$BASE_DIR/k8s_files/db.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/db-service.yaml"
 sleep 40
 
-minikube ssh -- rm -rf /home/docker/.aws
 minikube ssh -- mkdir /home/docker/.aws
 minikube cp ~/.aws/credentials minikube:/home/docker/.aws/credentials
-minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
+minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS LoggingMode=$LOGMODE \
     /home/docker/singleop/init create
-minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
+minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS LoggingMode=$LOGMODE \
     /home/docker/singleop/init populate
 
 # Create a ConfigMap to store environment variables (TABLE_PREFIX, NUM_KEYS)
-kubectl create configmap env-config --from-literal=TABLE_PREFIX=$TABLE_PREFIX --from-literal=NUM_KEYS=$NUM_KEYS
+kubectl create configmap env-config \
+    --from-literal=TABLE_PREFIX=$TABLE_PREFIX \
+    --from-literal=NUM_KEYS=$NUM_KEYS \
+    --from-literal=LoggingMode=$LOGMODE
 
 # move local zk_setup.sh to minikube node
 minikube cp $ROOT_DIR/scripts/zk_setup.sh minikube:/tmp/zk_setup.sh
@@ -95,15 +98,15 @@ minikube ssh -- uname -a >>$EXP_DIR/kernel_version
 minikube cp ~/wrk2/wrk minikube:/usr/local/bin/
 minikube ssh -- sudo chmod +x /usr/local/bin/wrk
 
-minikube cp $ROOT_DIR/workloads/workflow/boki/benchmark/singleop/workload.lua minikube:/tmp/
-minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 40 -L -U \
+minikube cp $ROOT_DIR/workloads/workflow/optimal/benchmark/singleop/workload.lua minikube:/tmp/
+minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
     -s /tmp/workload.lua \
     http://192.168.49.2:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
 sleep 10
-# minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 200 -L -U \
+# minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 600 -L -U \
 #     -s /tmp/workload.lua \
 #     http://192.168.49.2:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 # sleep 10
 
-minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
+minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS LoggingMode=$LOGMODE \
     /home/docker/singleop/init clean

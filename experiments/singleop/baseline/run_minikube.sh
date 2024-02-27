@@ -5,7 +5,7 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v9
+BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v8
 
 # Do I need them?
 NUM_KEYS=100
@@ -23,16 +23,12 @@ echo $TABLE_PREFIX
 kubectl label nodes minikube node-restriction.kubernetes.io/placement_label=engine_node
 minikube cp $BASE_DIR/k8s_files/engine_start.sh minikube:/tmp/engine_start.sh
 minikube ssh -- sudo chmod +x /tmp/engine_start.sh
-minikube cp $BASE_DIR/k8s_files/sequencer_start.sh minikube:/tmp/sequencer_start.sh
-minikube ssh -- sudo chmod +x /tmp/sequencer_start.sh
-minikube cp $BASE_DIR/k8s_files/storage_start.sh minikube:/tmp/storage_start.sh
-minikube ssh -- sudo chmod +x /tmp/storage_start.sh
 
 minikube ssh -- docker pull $BENCH_IMAGE
 
 minikube ssh -- docker run -v /home/docker:/tmp \
     $BENCH_IMAGE \
-    cp -r /bokiflow-bin/singleop /tmp/
+    cp -r /beldi-bin/bsingleop /tmp/
 
 # create a pod for database
 kubectl apply -f "$BASE_DIR/k8s_files/db.yaml"
@@ -43,9 +39,9 @@ minikube ssh -- rm -rf /home/docker/.aws
 minikube ssh -- mkdir /home/docker/.aws
 minikube cp ~/.aws/credentials minikube:/home/docker/.aws/credentials
 minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
-    /home/docker/singleop/init create
+    /home/docker/bsingleop/init create
 minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
-    /home/docker/singleop/init populate
+    /home/docker/bsingleop/init populate
 
 # Create a ConfigMap to store environment variables (TABLE_PREFIX, NUM_KEYS)
 kubectl create configmap env-config --from-literal=TABLE_PREFIX=$TABLE_PREFIX --from-literal=NUM_KEYS=$NUM_KEYS
@@ -66,24 +62,18 @@ minikube ssh -- sudo mkdir -p /mnt/inmem/boki
 minikube ssh -- sudo mkdir -p /mnt/inmem/boki/output /mnt/inmem/boki/ipc
 minikube ssh -- sudo cp /tmp/run_launcher /mnt/inmem/boki/run_launcher
 minikube ssh -- sudo cp /tmp/nightcore_config.json /mnt/inmem/boki/func_config.json
-# to storage hosts
-minikube ssh -- sudo rm -rf   /mnt/storage/logdata
-minikube ssh -- sudo mkdir -p /mnt/storage/logdata
 
 # sleep 10
 # start zookeeper
 kubectl apply -f "$BASE_DIR/k8s_files/zookeeper.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/zookeeper-service.yaml"
-sleep 60
+sleep 15
 # set up zookeeper
 kubectl apply -f "$BASE_DIR/k8s_files/zookeeper-setup.yaml"
 sleep 15
 kubectl apply -f "$BASE_DIR/k8s_files/boki-engine.yaml"
 kubectl apply -f "$BASE_DIR/k8s_files/boki-gateway.yaml"
-kubectl apply -f "$BASE_DIR/k8s_files/boki-storage.yaml"
-kubectl apply -f "$BASE_DIR/k8s_files/boki-sequencer.yaml"
-sleep 45
-kubectl apply -f "$BASE_DIR/k8s_files/boki-controller.yaml"
+sleep 15
 kubectl apply -f "$BASE_DIR/k8s_files/app.yaml"
 sleep 60
 
@@ -95,15 +85,18 @@ minikube ssh -- uname -a >>$EXP_DIR/kernel_version
 minikube cp ~/wrk2/wrk minikube:/usr/local/bin/
 minikube ssh -- sudo chmod +x /usr/local/bin/wrk
 
-minikube cp $ROOT_DIR/workloads/workflow/boki/benchmark/singleop/workload.lua minikube:/tmp/
+minikube cp $ROOT_DIR/workloads/workflow/beldi/benchmark/singleop/workload.lua minikube:/tmp/
+echo "start workload warmup"
 minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 40 -L -U \
     -s /tmp/workload.lua \
     http://192.168.49.2:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
 sleep 10
+# echo "start workload"
 # minikube ssh -- $WRK_DIR/wrk -t 2 -c 2 -d 200 -L -U \
 #     -s /tmp/workload.lua \
 #     http://192.168.49.2:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 # sleep 10
+echo "finish workload"
 
 minikube ssh -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
-    /home/docker/singleop/init clean
+    /home/docker/bsingleop/init clean

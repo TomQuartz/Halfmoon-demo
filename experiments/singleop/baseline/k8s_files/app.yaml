@@ -13,24 +13,30 @@ spec:
     spec:
       containers:
         - name: nop
-          image: emptyredbox/halfmoon-bench:test-v0
+          image: emptyredbox/halfmoon-bench:test-v8
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
           env:
             - name: FAAS_GO_MAX_PROC_FACTOR
               value: "8"
             - name: GOGC
               value: "1000"
-            # - name: FAAS_IO_THREAD_NICE
-            #   value: "0"
-            # - name: FAAS_IO_THREAD_CPUSET
-            #   value: "0"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /home/docker/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
 ---
@@ -49,71 +55,34 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: emptyredbox/halfmoon-bench:test-v0
+          image: emptyredbox/halfmoon-bench:test-v8
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
               mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
           env:
             - name: FAAS_GO_MAX_PROC_FACTOR
               value: "8"
             - name: GOGC
               value: "1000"
             - name: TABLE_PREFIX
-              value: "jpyGegBc-"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
             - name: NUM_KEYS
-              value: "100"
-            - name: LoggingMode
-              value: "read"
-            # - name: FAAS_IO_THREAD_NICE
-            #   value: "0"
-            # - name: FAAS_IO_THREAD_CPUSET
-            #   value: "0"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: NUM_KEYS
       volumes:
         - name: inmem-boki-volume
           hostPath:
             path: /mnt/inmem/boki
-      nodeSelector:
-        node-restriction.kubernetes.io/placement_label: engine_node
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: prewarm
-spec:
-  selector:
-    matchLabels:
-      app: prewarm
-  template:
-    metadata:
-      labels:
-        app: prewarm
-    spec:
-      containers:
-        - name: prewarm
-          image: emptyredbox/halfmoon-bench:test-v0
-          command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/prewarm", "3"]
-          volumeMounts:
-            - name: inmem-boki-volume
-              mountPath: /tmp/boki
-          env:
-            - name: FAAS_GO_MAX_PROC_FACTOR
-              value: "8"
-            - name: GOGC
-              value: "1000"
-            - name: TABLE_PREFIX
-              value: "jpyGegBc-"
-            - name: NUM_KEYS
-              value: "100"
-            - name: LoggingMode
-              value: "read"
-            # - name: FAAS_IO_THREAD_NICE
-            #   value: "0"
-            # - name: FAAS_IO_THREAD_CPUSET
-            #   value: "0"
-      volumes:
-        - name: inmem-boki-volume
+        - name: credentials-volume
           hostPath:
-            path: /mnt/inmem/boki
+            path: /home/docker/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node

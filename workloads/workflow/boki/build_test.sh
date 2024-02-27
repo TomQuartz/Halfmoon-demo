@@ -6,3 +6,5 @@ make retwis
 make rw
 make singleop
 make recovery
+
+rm -rf ./bin/

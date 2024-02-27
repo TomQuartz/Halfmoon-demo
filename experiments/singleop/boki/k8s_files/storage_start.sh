@@ -18,5 +18,5 @@ FAAS_NODE_ID=$NODE_ID /boki/storage \
     --slog_storage_bgthread_interval_ms=1 \
     --slog_storage_backend=rocksdb \
     --slog_storage_cache_cap_mb=4096 \
-    --use_txn_engine \
+    # --use_txn_engine \
     # --v=1
