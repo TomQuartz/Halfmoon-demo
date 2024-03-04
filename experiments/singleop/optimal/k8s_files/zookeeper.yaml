@@ -5,11 +5,23 @@ metadata:
   labels:
     app.kubernetes.io/name: zookeeper
 spec:
-  # nodeName: gateway1
+  nodeName: gateway1
   containers:
   - name: zookeeper
     image: zookeeper:3.6.2
     ports:
       - containerPort: 2181
-        hostPort: 2181
   restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-service
+spec:
+  selector:
+    app.kubernetes.io/name: zookeeper
+  ports:
+  - protocol: TCP
+    port: 2181
+    targetPort: 2181
+  clusterIP: 10.96.128.128

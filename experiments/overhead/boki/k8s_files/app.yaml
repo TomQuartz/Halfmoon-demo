@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rw
+spec:
+  selector:
+    matchLabels:
+      app: rw
+  template:
+    metadata:
+      labels:
+        app: rw
+    spec:
+      containers:
+        - name: rw
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/bokiflow-bin/rw/rw", "1"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "8"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+            - name: NUM_KEYS
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: NUM_KEYS
+            - name: VALUE_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: VALUE_SIZE
+            - name: NUM_OPS
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: NUM_OPS
+            - name: READ_RATIO
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: READ_RATIO
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node

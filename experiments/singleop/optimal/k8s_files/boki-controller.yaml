@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: boki-controller
 spec:
-  # nodeName: gateway1
+  nodeName: gateway1
   containers:
     - name: boki-controller
       image: shengqipku/halfmoon:sosp-ae

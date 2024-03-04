@@ -1,0 +1,211 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: login
+spec:
+  selector:
+    matchLabels:
+      app: login
+  template:
+    metadata:
+      labels:
+        app: login
+    spec:
+      containers:
+        - name: login
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/login", "1"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "4"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: profile
+spec:
+  selector:
+    matchLabels:
+      app: profile
+  template:
+    metadata:
+      labels:
+        app: profile
+    spec:
+      containers:
+        - name: profile
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/profile", "2"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "4"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: timeline
+spec:
+  selector:
+    matchLabels:
+      app: timeline
+  template:
+    metadata:
+      labels:
+        app: timeline
+    spec:
+      containers:
+        - name: timeline
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/timeline", "3"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "4"
+            - name: GOGC
+              value: "1000"
+            - name: MAX_RETURN_POSTS
+              value: "5"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: post
+spec:
+  selector:
+    matchLabels:
+      app: post
+  template:
+    metadata:
+      labels:
+        app: post
+    spec:
+      containers:
+        - name: post
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/post", "4"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "4"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: publish
+spec:
+  selector:
+    matchLabels:
+      app: publish
+  template:
+    metadata:
+      labels:
+        app: publish
+    spec:
+      containers:
+        - name: publish
+          image: emptyredbox/halfmoon-bench:test-v15
+          command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/publish", "5"]
+          volumeMounts:
+            - name: inmem-boki-volume
+              mountPath: /tmp/boki
+            - name: credentials-volume
+              mountPath: /root/.aws
+          env:
+            - name: FAAS_GO_MAX_PROC_FACTOR
+              value: "4"
+            - name: GOGC
+              value: "1000"
+            - name: TABLE_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: TABLE_PREFIX
+      volumes:
+        - name: inmem-boki-volume
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: credentials-volume
+          hostPath:
+            path: /mnt/inmem/.aws
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node

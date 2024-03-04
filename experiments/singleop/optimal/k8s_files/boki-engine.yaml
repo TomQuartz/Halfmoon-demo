@@ -16,8 +16,7 @@ spec:
       containers:
         - name: boki-engine
           image: shengqipku/halfmoon:sosp-ae
-          command: ["bash", "/tmp/scripts/engine_start.sh"]
-          # command: ["/tmp/scripts/engine_start.sh"]
+          command: ["/tmp/scripts/engine_start.sh"]
           volumeMounts:
             - name: boki-data
               mountPath: /tmp/boki

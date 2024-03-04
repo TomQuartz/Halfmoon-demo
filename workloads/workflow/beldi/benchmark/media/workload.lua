@@ -1090,6 +1090,6 @@ request = function()
     return wrk.format(method, path, headers, body)
 end
 
-function init(rand_seed)
-    math.randomseed(rand_seed)
+function init()
+    math.randomseed(os.time())
 end

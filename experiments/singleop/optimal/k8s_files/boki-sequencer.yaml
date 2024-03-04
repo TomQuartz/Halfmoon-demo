@@ -16,8 +16,7 @@ spec:
       containers:
       - name: boki-sequencer
         image: shengqipku/halfmoon:sosp-ae
-        command: ["bash", "/tmp/scripts/sequencer_start.sh"]
-        # command: ["/tmp/scripts/sequencer_start.sh"]
+        command: ["/tmp/scripts/sequencer_start.sh"]
         volumeMounts:
         - name: sequencer-script
           mountPath: /tmp/scripts/sequencer_start.sh
@@ -31,5 +30,5 @@ spec:
         hostPath:
           path: /tmp/sequencer_start.sh
       nodeSelector:
-        node-restriction.kubernetes.io/placement_label: engine_node
+        node-restriction.kubernetes.io/placement_label: sequencer_node
       restartPolicy: Always

@@ -5,22 +5,20 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v0
+BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v15
 
-# Do I need them?
-AWS_REGION=ap-southeast-1
 NUM_KEYS=100
-EXP_DIR=$BASE_DIR/results/QPS15
-QPS=15
+EXP_DIR=$BASE_DIR/results/$1
+QPS=$2
 
 WRK_DIR=~/wrk2
 
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
-ENGINE_HOSTS=("engine1" "engine2" "engine3")
-SEQUENCER_HOSTS=("sequencer2" "sequencer3")
-STORAGE_HOSTS=("storage1")
+ENGINE_HOSTS=("engine1")
+SEQUENCER_HOSTS=("sequencer1" "sequencer2" "sequencer3")
+STORAGE_HOSTS=("storage1" "storage2" "storage3")
 MANAGER_HOST="gateway1"
 CLIENT_HOST="master1"
 ENTRY_HOST="gateway1"
@@ -30,18 +28,24 @@ ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $M
 for HOST in ${ENGINE_HOSTS[@]}; do 
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
+    ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
+    ssh -q $HOST -- sudo mkdir /mnt/inmem/.aws
+    sudo scp -q ~/.aws/credentials $HOST:/mnt/inmem/.aws/
 done
 
-ssh -q $CLIENT_HOST -- docker pull $BENCH_IMAGE
-
-ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
+ssh -q $CLIENT_HOST -- sudo docker pull $BENCH_IMAGE
+ssh -q $CLIENT_HOST -- sudo rm -rf /tmp/bsingleop/
+ssh -q $CLIENT_HOST -- sudo docker run -v /tmp:/tmp \
     $BENCH_IMAGE \
     cp -r /beldi-bin/bsingleop /tmp/
 
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
     /tmp/bsingleop/init create
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
     /tmp/bsingleop/init populate
+
+# Create a ConfigMap to store environment variables (TABLE_PREFIX, NUM_KEYS)
+kubectl create configmap env-config --from-literal=TABLE_PREFIX=$TABLE_PREFIX --from-literal=NUM_KEYS=$NUM_KEYS
 
 scp -q $ROOT_DIR/scripts/zk_setup.sh $MANAGER_HOST:/tmp/zk_setup.sh
 ssh -q $MANAGER_HOST -- sudo mkdir -p /mnt/inmem/store
@@ -85,17 +89,20 @@ ssh -q $MANAGER_HOST -- uname -a >>$EXP_DIR/kernel_version
 
 scp -q $ROOT_DIR/workloads/workflow/beldi/benchmark/singleop/workload.lua $CLIENT_HOST:/tmp
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 40 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
 
 sleep 10
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 200 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 600 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 
 sleep 10
 
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+scp -q $MANAGER_HOST:/mnt/inmem/store/async_results $EXP_DIR
+$ROOT_DIR/scripts/singleop_latency.py --async-result-file $EXP_DIR/async_results >$EXP_DIR/latency.txt
+
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
     /tmp/bsingleop/init clean

@@ -13,8 +13,8 @@ AWS_REGION=ap-southeast-1
 
 NUM_KEYS=100
 
-EXP_DIR=$BASE_DIR/results/$1  # $1=QPS15
-QPS=$2                        # $2=15
+EXP_DIR=$BASE_DIR/results/$1
+QPS=$2
 
 HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper
 WRK_DIR=/usr/local/bin

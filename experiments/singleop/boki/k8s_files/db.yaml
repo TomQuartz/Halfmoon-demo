@@ -5,11 +5,23 @@ metadata:
   labels:
     app.kubernetes.io/name: dynamodb-local
 spec:
-  # nodeName: gateway1
+  nodeName: gateway1
   containers:
   - name: dynamodb-local
     image: amazon/dynamodb-local:latest
     ports:
       - containerPort: 8000
-        hostPort: 8000
   restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+spec:
+  selector:
+    app.kubernetes.io/name: dynamodb-local
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  clusterIP: 10.96.128.129

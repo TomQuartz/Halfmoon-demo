@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: nop
-          image: emptyredbox/halfmoon-bench:test-v9
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -31,7 +31,7 @@ spec:
             path: /mnt/inmem/boki
         - name: credentials-volume
           hostPath:
-            path: /home/docker/.aws
+            path: /mnt/inmem/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
 ---
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: emptyredbox/halfmoon-bench:test-v9
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -78,6 +78,6 @@ spec:
             path: /mnt/inmem/boki
         - name: credentials-volume
           hostPath:
-            path: /home/docker/.aws
+            path: /mnt/inmem/.aws
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
