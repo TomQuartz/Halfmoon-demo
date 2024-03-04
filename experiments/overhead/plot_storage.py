@@ -92,10 +92,10 @@ def plot(boki, hm_read, hm_write, read_ratios, figname):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--read-ratios", nargs='+', type=float, default=[0.1, 0.5, 0.9])
+    parser.add_argument("--read-ratios", nargs='+', type=float, default=[0.1, 0.3, 0.5, 0.7, 0.9])
     parser.add_argument("--qps", type=int, default=100)
-    parser.add_argument("--value-size", nargs="+", type=int, default=[256])
-    parser.add_argument("--gc-intervals", nargs="+", type=int, default=[10000])
+    parser.add_argument("--value-size", nargs="+", type=int, default=[256, 1024])
+    parser.add_argument("--gc-intervals", nargs="+", type=int, default=[10000, 60000])
     parser.add_argument("run", metavar="run", type=int, default=0)
     args = parser.parse_args()
     run = args.run

@@ -4,8 +4,8 @@ ROOT_DIR=`realpath $BASE_DIR/../../..`
 
 RUN=$1
 
-# QPS=(50 100 150 200 250 300 350 400 450)
-QPS=(100 200 300)
+QPS=(50 100 150 200 250 300 350 400 450)
+# QPS=(100 200 300)
 
 for qps in ${QPS[@]}; do
     EXP_DIR=QPS$qps

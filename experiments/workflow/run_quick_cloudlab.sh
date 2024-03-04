@@ -22,6 +22,6 @@ sleep 10
 sleep 10
 ./baseline-retwis/run_all_cloudlab.sh $RUN
 
-./plot_workflow.py --qps 100 300 500 700 -- hotel $RUN
-./plot_workflow.py --qps 100 200 300 -- movie $RUN
-./plot_workflow.py --qps 100 300 500 700 -- retwis $RUN
+./plot_workflow.py --qps 100 200 300 400 500 600 700 800 900 -- hotel $RUN
+./plot_workflow.py --qps 50 100 150 200 250 300 350 400 450 -- movie $RUN
+./plot_workflow.py --qps 100 200 300 400 500 600 700 800 900 -- retwis $RUN
