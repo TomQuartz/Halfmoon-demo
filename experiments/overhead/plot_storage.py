@@ -17,7 +17,7 @@ def summary(baseline, exp_name, gc_interval, run, log_mode=None):
     with open(os.path.join(exp_dir, f"storage_gc{gc_interval}.txt")) as f:
         line = f.read().strip().split("\n")[-1]
         storage = parse.parse("time average: total={:f}KB, {}, {}", line)[0]
-    return storage
+    return storage / 1000
 
 def plot(boki, hm_read, hm_write, read_ratios, figname):
     font_size = 30

@@ -4,7 +4,7 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 
 # create a pod for database
-kubectl apply -f "$BASE_DIR/k8s_files/db.yaml"
+kubectl apply -f "$BASE_DIR/db.yaml"
 sleep 40
 
 cd $BASE_DIR/singleop

@@ -18,7 +18,7 @@ WRK_DIR=~/wrk2
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
-ENGINE_HOSTS=("engine1")
+ENGINE_HOSTS=("engine1" "engine2" "engine3" "engine4" "engine5" "engine6" "engine7" "engine8")
 SEQUENCER_HOSTS=("sequencer1" "sequencer2" "sequencer3")
 STORAGE_HOSTS=("storage1" "storage2" "storage3")
 MANAGER_HOST="gateway1"
@@ -31,7 +31,7 @@ for HOST in ${ENGINE_HOSTS[@]}; do
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
-    ssh -q $HOST -- sudo mkdir /mnt/inmem/.aws
+    ssh -q $HOST -- sudo mkdir -p /mnt/inmem/.aws
     sudo scp -q ~/.aws/credentials $HOST:/mnt/inmem/.aws/
 done
 for HOST in ${SEQUENCER_HOSTS[@]}; do 

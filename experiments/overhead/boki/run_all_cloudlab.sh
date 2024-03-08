@@ -63,7 +63,7 @@ for qps in ${QPS[@]}; do
                         continue
                     fi
                     sleep 60
-                    $BASE_DIR/run_cloudlab.sh $EXP_DIR $qps $ops $rr $v # 2>&1 | tee $BASE_DIR/run.log 
+                    $BASE_DIR/run_cloudlab.sh $EXP_DIR $qps $ops $rr $v $NUM_KEYS # 2>&1 | tee $BASE_DIR/run.log 
                     mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
                     $BASE_DIR/cleanup.sh
                     echo "finished $BASE_DIR/${EXP_DIR}_gc${gc}"

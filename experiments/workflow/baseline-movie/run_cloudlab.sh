@@ -15,7 +15,7 @@ WRK_DIR=~/wrk2
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
-ENGINE_HOSTS=("engine1")
+ENGINE_HOSTS=("engine1" "engine2" "engine3" "engine4" "engine5" "engine6" "engine7" "engine8")
 SEQUENCER_HOSTS=("sequencer1" "sequencer2" "sequencer3")
 STORAGE_HOSTS=("storage1" "storage2" "storage3")
 MANAGER_HOST="gateway1"
