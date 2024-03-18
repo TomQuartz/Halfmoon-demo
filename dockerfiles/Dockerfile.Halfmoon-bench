@@ -15,7 +15,8 @@ RUN cd /workflow/workloads/boki && \
     make retwis && \
     make rw && \
     make singleop && \
-    make recovery
+    make recovery && \
+    make batching
 RUN cd /workflow/workloads/optimal && \
     make hotel && \
     make media && \
@@ -23,7 +24,8 @@ RUN cd /workflow/workloads/optimal && \
     make rw && \
     make singleop && \
     make switching && \
-    make recovery
+    make recovery && \
+    make batching
 
 FROM ubuntu:focal
 

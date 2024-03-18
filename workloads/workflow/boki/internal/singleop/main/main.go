@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
+	"github.com/eniac/Beldi/internal/utils"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 
 	"cs.utexas.edu/zjia/faas"
@@ -15,7 +16,8 @@ import (
 const table = "singleop"
 
 var nKeys = 10000
-var value = 1
+var valueSize = 256 // bytes
+var value string
 
 func init() {
 	if nk, err := strconv.Atoi(os.Getenv("NUM_KEYS")); err == nil {
@@ -23,6 +25,7 @@ func init() {
 	} else {
 		panic("invalid NUM_KEYS")
 	}
+	value = utils.RandomString(valueSize)
 	rand.Seed(time.Now().UnixNano())
 }
 

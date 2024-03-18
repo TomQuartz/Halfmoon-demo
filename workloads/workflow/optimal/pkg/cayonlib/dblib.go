@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -286,53 +287,6 @@ func ReadWithoutLog(env *Env, tablename string, key string) interface{} {
 	return result
 }
 
-// func ReadWithoutLog(env *Env, tablename string, key string) interface{} {
-// 	intentLog := env.Fsm.GetStepLog(env.StepNumber)
-// 	if intentLog != nil && checkPostReadLog(intentLog, tablename, key) {
-// 		log.Printf("[INFO] Seen Read log instance %s step %d", env.InstanceId, env.StepNumber)
-// 		env.StepNumber += 1
-// 		env.SeqNum = intentLog.SeqNum
-// 		return intentLog.Data["result"]
-// 	}
-// 	// if version log is empty then version is 0 and err is set
-// 	version, err := getVersionFromLog(env, tablename, key)
-// 	if err != nil {
-// 		log.Printf("[INFO] Read version not found instance %s step %d: table=%s key=%s", env.InstanceId, env.StepNumber, tablename, key)
-// 	}
-// 	item := LibReadMultiVersion(tablename, key, version)
-// 	var result interface{}
-// 	if value, ok := item["V"]; ok {
-// 		result = value
-// 	} else {
-// 		result = nil
-// 	}
-// 	// the returned version is the requested one, can go log-free
-// 	if err == nil && result != nil {
-// 		return result
-// 	}
-// 	// the returned version is not the requested one, must append readlog for determinism
-// 	// now if the intentlog is not nil and is not a readlog, then this is a conflict
-// 	if intentLog != nil {
-// 		log.Fatalf("[FATAL] Inconsistent read instance %s step %d: table=%s key=%s", env.InstanceId, env.StepNumber, tablename, key)
-// 	}
-// 	streamTags := []uint64{}
-// 	if err != nil && result != nil {
-// 		streamTags = append(streamTags, DatabaseKeyTag(tablename, key))
-// 	}
-// 	newLog, _ := ProposeNextStep(env, streamTags, aws.JSONValue{
-// 		"type":    "PostRead",
-// 		"key":     key,
-// 		"table":   tablename,
-// 		"result":  result,
-// 		"version": version,
-// 	})
-// 	// a concurrent step log, may or may not be a post read log
-// 	if !newLog {
-// 		return nil
-// 	}
-// 	return result
-// }
-
 func ReadWithLog(env *Env, tablename string, key string) interface{} {
 	postReadLog := env.Fsm.GetStepLog(env.StepNumber)
 	if postReadLog != nil {
@@ -442,4 +396,73 @@ func AssertResourceNotFound(err error) {
 		log.Printf("ERROR: %s", err)
 		panic("ERROR detected")
 	}
+}
+
+func BatchRead(env *Env, tablename string, key string, wg *sync.WaitGroup) interface{} {
+	postReadLog := env.Fsm.GetStepLog(env.StepNumber)
+	if postReadLog != nil {
+		if !checkPostReadLog(postReadLog, tablename, key) {
+			log.Fatalf("[FATAL] Missing read log instance %s step %d: table=%s key=%s", env.InstanceId, env.StepNumber, tablename, key)
+		}
+		log.Printf("[INFO] Seen read log instance %s step %d", env.InstanceId, env.StepNumber)
+		env.StepNumber += 1
+		env.SeqNum = postReadLog.SeqNum
+		return postReadLog.Data["result"]
+	}
+	item := LibReadSingleVersion(tablename, key)
+	var result interface{}
+	if value, ok := item["V"]; ok {
+		result = value
+	} else {
+		log.Printf("[INFO] Read with log table %s key %s return nil", tablename, key)
+		result = nil
+	}
+	go func() {
+		defer wg.Done()
+		ProposeNextStep(env, nil, aws.JSONValue{
+			"type":   "PostRead",
+			"result": result,
+		})
+	}()
+	return result
+}
+
+func BatchWrite(env *Env, tablename string, key string, update map[expression.NameBuilder]expression.OperandBuilder, dependent bool, wg *sync.WaitGroup) {
+	newLog, preWriteLog := ProposeNextStep(
+		env,
+		nil,
+		aws.JSONValue{
+			"type":  "PreWrite",
+			"key":   key,
+			"table": tablename,
+		})
+	if preWriteLog == nil {
+		return
+	}
+	if preWriteLog.SeqNum != env.SeqNum {
+		log.Fatalf("[ERROR] PreWrite log seqnum %x not matching env seqnum %x", preWriteLog.SeqNum, env.SeqNum)
+	}
+	if !newLog {
+		CheckLogDataField(preWriteLog, "type", "PreWrite")
+		CheckLogDataField(preWriteLog, "table", tablename)
+		CheckLogDataField(preWriteLog, "key", key)
+		log.Printf("[INFO] Seen PreWrite log for step %d", preWriteLog.StepNumber)
+	}
+	var version uint64
+	if !dependent {
+		version = env.SeqNum
+	}
+	LibWriteMultiVersion(tablename, key, version, update)
+	go func() {
+		defer wg.Done()
+		ProposeNextStep(
+			env,
+			[]uint64{DatabaseKeyTag(tablename, key)},
+			aws.JSONValue{
+				"type":    "PostWrite",
+				"key":     key,
+				"table":   tablename,
+				"version": version,
+			})
+	}()
 }

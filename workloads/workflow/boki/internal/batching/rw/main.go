@@ -1,10 +1,12 @@
 package main
 
 import (
-	"math/rand"
+	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"math/rand"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/eniac/Beldi/internal/utils"
@@ -13,11 +15,16 @@ import (
 	"cs.utexas.edu/zjia/faas"
 )
 
-const table = "singleop"
+const table = "batching"
 
 var nKeys = 10000
 var valueSize = 256 // bytes
 var value string
+
+var nOps float64
+var readRatio float64
+var nReads int
+var sleepDuration = 5 * time.Millisecond
 
 func init() {
 	if nk, err := strconv.Atoi(os.Getenv("NUM_KEYS")); err == nil {
@@ -25,42 +32,40 @@ func init() {
 	} else {
 		panic("invalid NUM_KEYS")
 	}
+	if vs, err := strconv.Atoi(os.Getenv("VALUE_SIZE")); err == nil {
+		valueSize = vs
+	} else {
+		panic("invalid VALUE_SIZE")
+	}
+	if ops, err := strconv.ParseFloat(os.Getenv("NUM_OPS"), 64); err == nil {
+		nOps = ops
+	} else {
+		panic("invalid NUM_OPS")
+	}
+	rr, err := strconv.ParseFloat(os.Getenv("READ_RATIO"), 64)
+	if err != nil || rr < 0 || rr > 1 {
+		panic("invalid READ_RATIO")
+	} else {
+		readRatio = rr
+	}
+	nReads = int(nOps * readRatio)
+	log.Printf("[INFO] nKeys=%d, valueSize=%d, nOps=%d, readRatio=%.2f, nReads=%d", nKeys, valueSize, int(nOps), readRatio, nReads)
+
 	value = utils.RandomString(valueSize)
 	rand.Seed(time.Now().UnixNano())
 }
 
 func Handler(env *cayonlib.Env) interface{} {
-	results := map[string]int64{}
-
-	start := time.Now()
-	if cayonlib.TYPE == "NONE" {
-		cayonlib.LibReadSingleVersion(table, strconv.Itoa(rand.Intn(nKeys)))
-	} else {
+	// nReads := int(nOps * readRatio)
+	for i := 0; i < nReads; i++ {
 		cayonlib.Read(env, table, strconv.Itoa(rand.Intn(nKeys)))
 	}
-	results["Read"] = time.Since(start).Microseconds()
-
-	start = time.Now()
-	if cayonlib.TYPE == "NONE" {
-		cayonlib.LibWriteMultiVersion(table, strconv.Itoa(rand.Intn(nKeys)), 0, map[expression.NameBuilder]expression.OperandBuilder{
-			expression.Name("V"): expression.Value(value),
-		})
-	} else {
+	for i := 0; i < int(nOps)-nReads; i++ {
 		cayonlib.Write(env, table, strconv.Itoa(rand.Intn(nKeys)), map[expression.NameBuilder]expression.OperandBuilder{
 			expression.Name("V"): expression.Value(value),
-		}, false)
+		})
 	}
-	results["Write"] = time.Since(start).Microseconds()
-
-	start = time.Now()
-	if cayonlib.TYPE == "NONE" {
-		env.FaasEnv.InvokeFunc(env.FaasCtx, "nop", []byte{})
-	} else {
-		cayonlib.SyncInvoke(env, "nop", "")
-	}
-	results["Invoke"] = time.Since(start).Microseconds()
-
-	return results
+	return nil
 }
 
 func main() {
