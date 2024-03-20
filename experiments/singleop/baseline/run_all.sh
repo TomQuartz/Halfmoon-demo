@@ -8,6 +8,7 @@ HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper
 RUN=$1
 
 QPS=(15)
+VALUE_SIZE=(256)
 
 $HELPER_SCRIPT start-machines --base-dir=$BASE_DIR --instance-iam-role=$BOKI_MACHINE_IAM
 
@@ -18,12 +19,14 @@ if ! [ -f "$BASE_DIR/machines.json" ]; then
 fi
 
 for qps in ${QPS[@]}; do
-    EXP_DIR=QPS$qps
-    if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
-        $BASE_DIR/run_once.sh $EXP_DIR $qps # 2>&1 | tee $BASE_DIR/run.log 
-        mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
-    fi
-    echo "finished $BASE_DIR/$EXP_DIR"
+    for v in ${VALUE_SIZE[@]}; do
+        EXP_DIR=QPS${qps}_v${v}
+        if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
+            $BASE_DIR/run_once.sh $EXP_DIR $qps $v # 2>&1 | tee $BASE_DIR/run.log 
+            mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
+        fi
+        echo "finished $BASE_DIR/$EXP_DIR"
+    done
 done
 
 $HELPER_SCRIPT stop-machines --base-dir=$BASE_DIR

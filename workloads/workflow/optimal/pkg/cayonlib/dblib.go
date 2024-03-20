@@ -431,6 +431,8 @@ func BatchRead(env *Env, tablename string, key string, wg *sync.WaitGroup) inter
 		defer wg.Done()
 		ProposeNextStep(env, nil, aws.JSONValue{
 			"type":   "PostRead",
+			"key":    key,
+			"table":  tablename,
 			"result": result,
 		})
 	}()

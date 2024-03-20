@@ -15,6 +15,7 @@ NUM_KEYS=100
 
 EXP_DIR=$BASE_DIR/results/$1
 QPS=$2
+VALUE_SIZE=$3
 
 HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper
 WRK_DIR=/usr/local/bin
@@ -41,9 +42,9 @@ ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
     $BENCH_IMAGE \
     cp -r /bokiflow-bin/singleop /tmp/
 
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS VALUE_SIZE=$VALUE_SIZE \
     /tmp/singleop/init create
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS VALUE_SIZE=$VALUE_SIZE \
     /tmp/singleop/init populate
 
 scp -q $ROOT_DIR/scripts/zk_setup.sh $MANAGER_HOST:/tmp/zk_setup.sh
@@ -69,7 +70,7 @@ for HOST in $ALL_STORAGE_HOSTS; do
     ssh -q $HOST -- sudo mkdir -p /mnt/storage/logdata
 done
 
-ssh -q $MANAGER_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS \
+ssh -q $MANAGER_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS VALUE_SIZE=$VALUE_SIZE \
     docker stack deploy \
     -c ~/docker-compose-generated.yml -c ~/docker-compose.yml $STACK
 sleep 100
@@ -103,7 +104,7 @@ sleep 10
 scp -q $MANAGER_HOST:/mnt/inmem/store/async_results $EXP_DIR
 $ROOT_DIR/scripts/singleop_latency.py --async-result-file $EXP_DIR/async_results >$EXP_DIR/latency.txt
 
-ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS \
+ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX AWS_REGION=$AWS_REGION NUM_KEYS=$NUM_KEYS VALUE_SIZE=$VALUE_SIZE \
     /tmp/singleop/init clean
 
 if [ ! -s "$EXP_DIR/async_results" ]; then

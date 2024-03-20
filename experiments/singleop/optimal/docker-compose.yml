@@ -164,6 +164,7 @@ services:
       - TABLE_PREFIX=${TABLE_PREFIX:?}
       - NUM_KEYS=${NUM_KEYS:?}
       - LoggingMode=${LoggingMode:?}
+      - VALUE_SIZE=${VALUE_SIZE:?}
     depends_on:
       - boki-engine
     restart: always

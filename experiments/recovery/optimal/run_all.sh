@@ -9,6 +9,7 @@ RUN=$1
 
 QPS=(100)
 NUM_OPS=(10)
+READ_RATIO=(0.0 0.2 0.4 0.6 0.8 1.0)
 LOGMODE=("read" "write")
 VALUE_SIZE=(256)
 FAIL_RATE=(0.1 0.2 0.3 0.4)
@@ -23,23 +24,20 @@ fi
 
 for qps in ${QPS[@]}; do
     for ops in ${NUM_OPS[@]}; do
-        for mode in ${LOGMODE[@]}; do
-            for f in ${FAIL_RATE[@]}; do
-                for v in ${VALUE_SIZE[@]}; do
-                    if [ "$mode" == "read" ]; then
-                        rr=0
-                    else
-                        rr=1
-                    fi
-                    EXP_DIR=ReadRatio${rr}_QPS${qps}_${mode}_v${v}_f${f}
-                    if [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
+        for rr in ${READ_RATIO[@]}; do
+            for mode in ${LOGMODE[@]}; do
+                for f in ${FAIL_RATE[@]}; do
+                    for v in ${VALUE_SIZE[@]}; do
+                        EXP_DIR=ReadRatio${rr}_QPS${qps}_${mode}_v${v}_f${f}
+                        if [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
+                            echo "finished $BASE_DIR/$EXP_DIR"
+                            continue
+                        fi
+                        sleep 60
+                        $BASE_DIR/run_once.sh $EXP_DIR $qps $ops $rr $mode $v $f # 2>&1 | tee $BASE_DIR/run.log 
+                        mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
                         echo "finished $BASE_DIR/$EXP_DIR"
-                        continue
-                    fi
-                    sleep 60
-                    $BASE_DIR/run_once.sh $EXP_DIR $qps $ops $rr $mode $v $f # 2>&1 | tee $BASE_DIR/run.log 
-                    mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
-                    echo "finished $BASE_DIR/$EXP_DIR"
+                    done
                 done
             done
         done

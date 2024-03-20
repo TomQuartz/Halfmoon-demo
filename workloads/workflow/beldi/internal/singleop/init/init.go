@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/eniac/Beldi/internal/utils"
 	"github.com/eniac/Beldi/pkg/beldilib"
 )
 
@@ -13,7 +14,8 @@ var table = "singleop"
 var baseline = false
 
 var nKeys = 10000
-var value = 1
+var valueSize = 256 // bytes
+var value string
 
 func init() {
 	if nk, err := strconv.Atoi(os.Getenv("NUM_KEYS")); err == nil {
@@ -25,6 +27,12 @@ func init() {
 		// table = "b" + table
 		baseline = true
 	}
+	if vs, err := strconv.Atoi(os.Getenv("VALUE_SIZE")); err == nil {
+		valueSize = vs
+	} else {
+		panic("invalid VALUE_SIZE")
+	}
+	value = utils.RandomString(valueSize)
 }
 
 func clean() {

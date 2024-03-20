@@ -9,6 +9,7 @@ RUN=$1
 
 QPS=(15)
 LOGMODE=("read" "write")
+VALUE_SIZE=(256)
 
 $HELPER_SCRIPT start-machines --base-dir=$BASE_DIR --instance-iam-role=$BOKI_MACHINE_IAM
 
@@ -20,13 +21,15 @@ fi
 
 for qps in ${QPS[@]}; do
     for mode in ${LOGMODE[@]}; do
-        EXP_DIR=QPS${qps}_$mode
-        if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
-            $BASE_DIR/run_once.sh $EXP_DIR $qps $mode # 2>&1 | tee $BASE_DIR/run.log 
-            mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
-        fi
-        echo "finished $BASE_DIR/$EXP_DIR"
-        sleep 30
+        for v in $[VALUE_SIZE[@]]; do
+            EXP_DIR=QPS${qps}_${mode}_v${v}
+            if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
+                $BASE_DIR/run_once.sh $EXP_DIR $qps $mode $v # 2>&1 | tee $BASE_DIR/run.log 
+                mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
+            fi
+            echo "finished $BASE_DIR/$EXP_DIR"
+            sleep 30
+        done
     done
 done
 

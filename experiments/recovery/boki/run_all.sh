@@ -9,7 +9,7 @@ RUN=$1
 
 QPS=(100)
 NUM_OPS=(10)
-READ_RATIO=(0 1)
+READ_RATIO=(0.0 0.2 0.4 0.6 0.8 1.0)
 VALUE_SIZE=(256)
 FAIL_RATE=(0.1 0.2 0.3 0.4)
 
@@ -42,4 +42,3 @@ for qps in ${QPS[@]}; do
 done
 
 $HELPER_SCRIPT stop-machines --base-dir=$BASE_DIR
-

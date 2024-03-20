@@ -4,13 +4,15 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/eniac/Beldi/internal/utils"
 	"github.com/eniac/Beldi/pkg/cayonlib"
 )
 
 const table = "singleop"
 
 var nKeys = 10000
-var value = 1
+var valueSize = 256 // bytes
+var value string
 
 func init() {
 	if nk, err := strconv.Atoi(os.Getenv("NUM_KEYS")); err == nil {
@@ -18,6 +20,12 @@ func init() {
 	} else {
 		panic("invalid NUM_KEYS")
 	}
+	if vs, err := strconv.Atoi(os.Getenv("VALUE_SIZE")); err == nil {
+		valueSize = vs
+	} else {
+		panic("invalid VALUE_SIZE")
+	}
+	value = utils.RandomString(valueSize)
 }
 
 func clean() {

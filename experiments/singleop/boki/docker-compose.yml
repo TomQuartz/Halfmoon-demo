@@ -148,6 +148,7 @@ services:
       - GOGC=1000
       - TABLE_PREFIX=${TABLE_PREFIX:?}
       - NUM_KEYS=${NUM_KEYS:?}
+      - VALUE_SIZE=${VALUE_SIZE:?}
     depends_on:
       - boki-engine
     restart: always

@@ -28,6 +28,11 @@ func init() {
 	if beldilib.TYPE == "BASELINE" {
 		table = "b" + table
 	}
+	if vs, err := strconv.Atoi(os.Getenv("VALUE_SIZE")); err == nil {
+		valueSize = vs
+	} else {
+		panic("invalid VALUE_SIZE")
+	}
 	value = utils.RandomString(valueSize)
 	rand.Seed(time.Now().UnixNano())
 }
