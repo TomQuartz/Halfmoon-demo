@@ -218,6 +218,16 @@ func WriteWithLog(env *Env, tablename string, key string, update map[expression.
 		CheckLogDataField(preWriteLog, "key", key)
 		log.Printf("[INFO] Seen PreWrite log for step %d", preWriteLog.StepNumber)
 	}
+	postWriteLog := env.Fsm.GetStepLog(env.StepNumber)
+	if postWriteLog != nil {
+		CheckLogDataField(postWriteLog, "type", "PostWrite")
+		CheckLogDataField(postWriteLog, "table", tablename)
+		CheckLogDataField(postWriteLog, "key", key)
+		log.Printf("[INFO] Seen PostWrite log for step %d", postWriteLog.StepNumber)
+		env.StepNumber += 1
+		env.SeqNum = postWriteLog.SeqNum
+		return
+	}
 	var version uint64
 	if !dependent {
 		version = env.SeqNum
@@ -306,9 +316,9 @@ func ReadWithLog(env *Env, tablename string, key string) interface{} {
 		result = nil
 	}
 	newLog, _ := ProposeNextStep(env, nil, aws.JSONValue{
-		"type": "PostRead",
-		// "key":    key,
-		// "table":  tablename,
+		"type":   "PostRead",
+		"key":    key,
+		"table":  tablename,
 		"result": result,
 	})
 	// a concurrent step log, must be a post read log but not necessarily the same version
