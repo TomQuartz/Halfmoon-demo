@@ -5,23 +5,23 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:test-v15
+BENCH_IMAGE=emptyredbox/halfmoon-bench:small-v0
 
 NUM_KEYS=100
 EXP_DIR=$BASE_DIR/results/$1
 QPS=$2
 
-WRK_DIR=~/wrk2
+WRK_DIR=$ROOT_DIR/scripts
 
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
-ENGINE_HOSTS=("engine1" "engine2" "engine3" "engine4" "engine5" "engine6" "engine7" "engine8")
-SEQUENCER_HOSTS=("sequencer1" "sequencer2" "sequencer3")
-STORAGE_HOSTS=("storage1" "storage2" "storage3")
-MANAGER_HOST="gateway1"
-CLIENT_HOST="master1"
-ENTRY_HOST="gateway1"
+ENGINE_HOSTS=("node1" "node2")
+SEQUENCER_HOSTS=("node1" "node2")
+STORAGE_HOSTS=("node1" "node2")
+MANAGER_HOST="master"
+CLIENT_HOST="master"
+ENTRY_HOST="master"
 ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $MANAGER_HOST)
 
 # assign labels and copy scripts to the corresponding nodes

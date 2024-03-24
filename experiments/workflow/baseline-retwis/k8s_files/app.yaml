@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: login
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/login", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
         - name: profile
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/profile", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
         - name: timeline
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/timeline", "3"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -141,7 +141,7 @@ spec:
     spec:
       containers:
         - name: post
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/post", "4"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: publish
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bretwis/publish", "5"]
           volumeMounts:
             - name: inmem-boki-volume

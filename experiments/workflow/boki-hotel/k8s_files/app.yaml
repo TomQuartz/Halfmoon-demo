@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: geo
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/geo", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: profile
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/profile", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
         - name: rate
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/rate", "3"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -141,7 +141,7 @@ spec:
     spec:
       containers:
         - name: recommendation
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/recommendation", "4"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: user
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/user", "5"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -225,7 +225,7 @@ spec:
     spec:
       containers:
         - name: hotel
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/hotel", "6"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -267,7 +267,7 @@ spec:
     spec:
       containers:
         - name: search
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/search", "7"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -309,7 +309,7 @@ spec:
     spec:
       containers:
         - name: flight
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/flight", "8"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -351,7 +351,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/order", "9"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -393,7 +393,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/frontend", "10"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -435,7 +435,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/hotel/gateway", "11"]
           volumeMounts:
             - name: inmem-boki-volume

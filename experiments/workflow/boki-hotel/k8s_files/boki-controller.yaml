@@ -10,7 +10,7 @@ spec:
       command: ["/boki/controller"]
       args:
         - --zookeeper_host=10.96.128.128:2181
-        - --metalog_replicas=3
-        - --userlog_replicas=3
-        - --index_replicas=8
+        - --metalog_replicas=2
+        - --userlog_replicas=2
+        - --index_replicas=2
   restartPolicy: Always

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: nop
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/beldi-bin/bsingleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: nop
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/nop", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: singleop
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/singleop", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -102,7 +102,7 @@ spec:
     spec:
       containers:
         - name: prewarm
-          image: emptyredbox/halfmoon-bench:test-v15
+          image: emptyredbox/halfmoon-bench:small-v0
           command: ["/tmp/boki/run_launcher", "/optimal-bin/singleop/prewarm", "3"]
           volumeMounts:
             - name: inmem-boki-volume
