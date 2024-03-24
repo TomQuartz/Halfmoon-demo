@@ -30,7 +30,7 @@ for HOST in ${ENGINE_HOSTS[@]}; do
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
     ssh -q $HOST -- sudo mkdir /mnt/inmem/.aws
-    sudo scp -q ~/.aws/credentials $HOST:/mnt/inmem/.aws/
+    sudo scp -q $ROOT_DIR/scripts/.aws/credentials $HOST:/mnt/inmem/.aws/
 done
 for HOST in ${SEQUENCER_HOSTS[@]}; do 
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=sequencer_node
