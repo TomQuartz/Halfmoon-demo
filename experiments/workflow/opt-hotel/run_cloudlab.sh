@@ -19,9 +19,9 @@ TABLE_PREFIX="${TABLE_PREFIX}-"
 ENGINE_HOSTS=("node1" "node2")
 SEQUENCER_HOSTS=("node1" "node2")
 STORAGE_HOSTS=("node1" "node2")
-MANAGER_HOST="master"
-CLIENT_HOST="master"
-ENTRY_HOST="master"
+MANAGER_HOST="node0"
+CLIENT_HOST="node0"
+ENTRY_HOST="node0"
 ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $MANAGER_HOST)
 
 # assign labels and copy scripts to the corresponding nodes
