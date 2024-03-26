@@ -127,7 +127,7 @@ services:
     restart: always
 
   rw-service:
-    image: shengqipku/halfmoon-bench:sosp-ae
+    image: emptyredbox/halfmoon-bench:journal-v2
     entrypoint: ["/tmp/boki/run_launcher", "/bokiflow-bin/batching/rw", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

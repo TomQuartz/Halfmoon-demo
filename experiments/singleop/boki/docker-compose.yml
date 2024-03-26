@@ -127,7 +127,7 @@ services:
     restart: always
 
   nop-service:
-    image: shengqipku/halfmoon-bench:sosp-ae
+    image: emptyredbox/halfmoon-bench:journal-v2
     entrypoint: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/nop", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -139,7 +139,7 @@ services:
     restart: always
 
   singleop-service:
-    image: shengqipku/halfmoon-bench:sosp-ae
+    image: emptyredbox/halfmoon-bench:journal-v2
     entrypoint: ["/tmp/boki/run_launcher", "/bokiflow-bin/singleop/singleop", "2"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

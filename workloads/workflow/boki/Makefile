@@ -60,8 +60,8 @@ retwis:
 	env GOOS=linux go build -o bin/retwis/timeline internal/retwis/handlers/timeline/main.go
 
 batching:
-	env GOOS=linux go build -o bin/batching/init internal/batching/init/init.go
-	env GOOS=linux go build -o bin/batching/rw internal/batching/rw/main.go
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/cayonlib.TYPE=BELDI" -o bin/batching/init internal/batching/init/init.go
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/cayonlib.TYPE=BELDI" -o bin/batching/rw internal/batching/rw/main.go
 
 clean:
 	rm -rf ./bin

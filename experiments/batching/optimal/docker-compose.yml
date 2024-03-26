@@ -127,7 +127,7 @@ services:
     restart: always
 
   rw-service:
-    image: shengqipku/halfmoon-bench:sosp-ae
+    image: emptyredbox/halfmoon-bench:journal-v2
     entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/rw", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -139,6 +139,21 @@ services:
       - VALUE_SIZE=${VALUE_SIZE:?}
       - NUM_OPS=${NUM_OPS:?}
       - READ_RATIO=${READ_RATIO:?}
+      - LoggingMode=${LoggingMode:?}
+    depends_on:
+      - boki-engine
+    restart: always
+
+  prewarm-service:
+    image: emptyredbox/halfmoon-bench:journal-v2
+    entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/prewarm", "2"]
+    volumes:
+      - /mnt/inmem/boki:/tmp/boki
+    environment:
+      - FAAS_GO_MAX_PROC_FACTOR=8
+      - GOGC=1000
+      - TABLE_PREFIX=${TABLE_PREFIX:?}
+      - NUM_KEYS=${NUM_KEYS:?}
       - LoggingMode=${LoggingMode:?}
     depends_on:
       - boki-engine

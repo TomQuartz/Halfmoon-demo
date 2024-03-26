@@ -6,12 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def summary(baseline, exp_name, run, log_mode=None):
+def summary(baseline, exp_name, size, run, log_mode=None):
     base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), baseline, "results")
     if log_mode is not None:
-        run_dir = f"{exp_name}_{log_mode}_{run}"
+        run_dir = f"{exp_name}_{log_mode}_v{size}_{run}"
     else:
-        run_dir = f"{exp_name}_{run}"
+        run_dir = f"{exp_name}_v{size}_{run}"
     exp_dir = os.path.join(base_dir, run_dir)
     with open(os.path.join(exp_dir, "latency.txt")) as f:
         lines = f.read().strip().split("\n")
@@ -64,6 +64,7 @@ def plot(read_p50, read_p99, write_p50, write_p99, figname):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--qps", type=int, default=20)
+    parser.add_argument("--size", type=int, default=256)
     parser.add_argument("run", metavar="run", type=int, default=0)
     args = parser.parse_args()
     run = args.run
@@ -74,9 +75,9 @@ if __name__ == "__main__":
     write_p99 = []
     params = [("baseline",None),("boki",None),("optimal","write"),("optimal","read")]
     for baseline, log_mode in params:
-        r50,r99,w50,w99 = summary(baseline, f"QPS{args.qps}", run, log_mode)
+        r50,r99,w50,w99 = summary(baseline, f"QPS{args.qps}", args.size, run, log_mode)
         read_p50.append(r50)
         read_p99.append(r99)
         write_p50.append(w50)
         write_p99.append(w99)
-    plot(read_p50, read_p99, write_p50, write_p99, f"{run}/microbenchmarks.png")
+    plot(read_p50, read_p99, write_p50, write_p99, f"{run}_v{args.size}/microbenchmarks.png")

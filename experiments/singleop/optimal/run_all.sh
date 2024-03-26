@@ -9,7 +9,7 @@ RUN=$1
 
 QPS=(15)
 LOGMODE=("read" "write")
-VALUE_SIZE=(256)
+VALUE_SIZE=(4096)
 
 $HELPER_SCRIPT start-machines --base-dir=$BASE_DIR --instance-iam-role=$BOKI_MACHINE_IAM
 
@@ -21,7 +21,7 @@ fi
 
 for qps in ${QPS[@]}; do
     for mode in ${LOGMODE[@]}; do
-        for v in $[VALUE_SIZE[@]]; do
+        for v in ${VALUE_SIZE[@]}; do
             EXP_DIR=QPS${qps}_${mode}_v${v}
             if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
                 $BASE_DIR/run_once.sh $EXP_DIR $qps $mode $v # 2>&1 | tee $BASE_DIR/run.log 

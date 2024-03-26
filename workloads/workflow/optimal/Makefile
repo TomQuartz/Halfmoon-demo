@@ -71,6 +71,7 @@ batching:
 	env GOOS=linux go build -o bin/batching/init internal/batching/init/init.go
 	env GOOS=linux go build -o bin/batching/rw internal/batching/rw/main.go
 	env GOOS=linux go build -o bin/batching/batching internal/batching/main/main.go
+	env GOOS=linux go build -o bin/batching/prewarm internal/batching/prewarm/prewarm.go
 
 clean:
 	rm -rf ./bin
