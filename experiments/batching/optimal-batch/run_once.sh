@@ -5,7 +5,7 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:journal-v2
+BENCH_IMAGE=emptyredbox/halfmoon-bench:journal-v7
 
 STACK=halfmoon
 
@@ -13,6 +13,7 @@ AWS_REGION=ap-southeast-1
 
 NUM_KEYS=$7
 VALUE_SIZE=$6
+BATCH_SIZE=$8
 
 EXP_DIR=$BASE_DIR/results/$1
 QPS=$2
@@ -74,7 +75,7 @@ for HOST in $ALL_STORAGE_HOSTS; do
 done
 
 ssh -q $MANAGER_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS VALUE_SIZE=$VALUE_SIZE \
-                        NUM_OPS=$NUM_OPS READ_RATIO=$READ_RATIO LoggingMode=$LOGMODE \
+                        NUM_OPS=$NUM_OPS READ_RATIO=$READ_RATIO LoggingMode=$LOGMODE BATCH_SIZE=$BATCH_SIZE\
     docker stack deploy \
     -c ~/docker-compose-generated.yml -c ~/docker-compose.yml $STACK
 sleep 100
@@ -99,7 +100,7 @@ ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 30 -L -U \
 
 sleep 10
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 150 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 

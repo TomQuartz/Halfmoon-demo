@@ -26,6 +26,7 @@ var nOps float64
 var readRatio float64
 var nReads int
 var sleepDuration = 5 * time.Millisecond
+var batchSize int
 
 func init() {
 	if nk, err := strconv.Atoi(os.Getenv("NUM_KEYS")); err == nil {
@@ -49,6 +50,11 @@ func init() {
 	} else {
 		readRatio = rr
 	}
+	if bs, err := strconv.Atoi(os.Getenv("BATCH_SIZE")); err == nil {
+		batchSize = bs
+	} else {
+		panic("invalid BATCH_SIZE")
+	}
 	nReads = int(nOps * readRatio)
 	log.Printf("[INFO] nKeys=%d, valueSize=%d, nOps=%d, readRatio=%.2f, nReads=%d", nKeys, valueSize, int(nOps), readRatio, nReads)
 
@@ -63,22 +69,31 @@ func Handler(env *cayonlib.Env) interface{} {
 			cayonlib.Read(env, table, strconv.Itoa(rand.Intn(nKeys)))
 		}
 		writeSet := []int{}
-		for i := 0; i < int(nOps) - nReads; i++ {
-			wg.Add(1)
+		nWrites := int(nOps) - nReads
+		for i := 0; i < nWrites; i++ {
 			writeKey := rand.Intn(nKeys)
 			cayonlib.BatchWrite(env, table, strconv.Itoa(writeKey), map[expression.NameBuilder]expression.OperandBuilder{
 				expression.Name("V"): expression.Value(value),
-			}, false, &wg)
+			}, &wg)
 			writeSet = append(writeSet, writeKey)
+			if (i + 1) % batchSize == 0 {
+				wg.Wait()
+			}
 		}
-		wg.Wait()
+		if nWrites % batchSize != 0 {
+			wg.Wait()
+		}
 		return writeSet
 	} else { // halfmoon-write
 		for i := 0; i < nReads; i++ {
-			wg.Add(1)
 			cayonlib.BatchRead(env, table, strconv.Itoa(rand.Intn(nKeys)), &wg)
+			if (i + 1) % batchSize == 0 {
+				wg.Wait()
+			}
 		}
-		wg.Wait()
+		if nReads % batchSize != 0 {
+			wg.Wait()
+		}
 		writeSet := []int{}
 		for i := 0; i < int(nOps) - nReads; i++ {
 			writeKey := rand.Intn(nKeys)

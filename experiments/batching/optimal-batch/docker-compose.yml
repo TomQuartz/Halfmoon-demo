@@ -127,7 +127,7 @@ services:
     restart: always
 
   rw-service:
-    image: emptyredbox/halfmoon-bench:journal-v2
+    image: emptyredbox/halfmoon-bench:journal-v7
     entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/batching", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -140,12 +140,13 @@ services:
       - NUM_OPS=${NUM_OPS:?}
       - READ_RATIO=${READ_RATIO:?}
       - LoggingMode=${LoggingMode:?}
+      - BATCH_SIZE=${BATCH_SIZE:?}
     depends_on:
       - boki-engine
     restart: always
 
   prewarm-service:
-    image: emptyredbox/halfmoon-bench:journal-v2
+    image: emptyredbox/halfmoon-bench:journal-v7
     entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/prewarm", "2"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

@@ -49,6 +49,14 @@ func (fsm *IntentFsm) applyLog(intentLog *IntentLogEntry) {
 	}
 }
 
+func (fsm *IntentFsm) applyLogBatch(intentLog *IntentLogEntry) {
+	fsm.tail = intentLog
+	step := intentLog.StepNumber
+	if _, exists := fsm.stepLogs[step]; !exists {
+		fsm.stepLogs[step] = intentLog
+	}
+}
+
 func (fsm *IntentFsm) Catch(env *Env) {
 	tag := IntentStepStreamTag(fsm.instanceId)
 	seqNum := uint64(0)
@@ -120,6 +128,30 @@ func ProposeNextStep(env *Env, tags []uint64, data aws.JSONValue) (bool, *Intent
 	// }
 	// env.SeqNum = intentLog.SeqNum
 	// return condOK, intentLog
+}
+
+func ProposeNextStepBatch(env *Env, step int32, tags []uint64, data aws.JSONValue) (bool, *IntentLogEntry) {
+	intentLog := env.Fsm.GetStepLog(step)
+	if intentLog != nil {
+		env.SeqNum = intentLog.SeqNum
+		return false, intentLog
+	}
+	intentLog = &IntentLogEntry{
+		InstanceId: env.InstanceId,
+		StepNumber: step,
+		PostStep:   false,
+		Data:       data,
+	}
+	seqNum, condOK := LibConditionalAppendLog(env, tags, &intentLog, IntentStepStreamTag(env.InstanceId), uint32(step))
+	if !condOK {
+		log.Printf("[WARN] Found concurrent intent step log: instance=%v step=%d", env.InstanceId, step)
+		env.Instruction = "EXIT"
+		return false, nil
+	}
+	intentLog.SeqNum = seqNum
+	env.Fsm.applyLogBatch(intentLog)
+	env.SeqNum = intentLog.SeqNum
+	return true, intentLog
 }
 
 func LogStepResultForCaller(env *Env, instanceId string, stepNumber int32, data aws.JSONValue) {

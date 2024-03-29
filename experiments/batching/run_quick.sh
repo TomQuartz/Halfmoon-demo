@@ -10,4 +10,4 @@ sleep 10
 sleep 10
 ./optimal-batch/run_all.sh $RUN
 
-./plot_runtime.py $RUN
+./plot_batching.py $RUN

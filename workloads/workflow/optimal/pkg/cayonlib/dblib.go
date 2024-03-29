@@ -3,6 +3,7 @@ package cayonlib
 import (
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"log"
 	"sync"
 
@@ -427,48 +428,45 @@ func BatchRead(env *Env, tablename string, key string, wg *sync.WaitGroup) inter
 		log.Printf("[INFO] Read with log table %s key %s return nil", tablename, key)
 		result = nil
 	}
+	step := env.StepNumber
+	env.StepNumber += 1
+	wg.Wait()
+	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		ProposeNextStep(env, nil, aws.JSONValue{
+		ProposeNextStepBatch(env, step, nil, aws.JSONValue{
 			"type":   "PostRead",
 			"key":    key,
 			"table":  tablename,
 			"result": result,
 		})
+		wg.Done()
 	}()
 	return result
 }
 
-func BatchWrite(env *Env, tablename string, key string, update map[expression.NameBuilder]expression.OperandBuilder, dependent bool, wg *sync.WaitGroup) {
-	newLog, preWriteLog := ProposeNextStep(
-		env,
-		nil,
-		aws.JSONValue{
-			"type":  "PreWrite",
-			"key":   key,
-			"table": tablename,
-		})
-	if preWriteLog == nil {
+func BatchWrite(env *Env, tablename string, key string, update map[expression.NameBuilder]expression.OperandBuilder, wg *sync.WaitGroup) {
+	postWriteLog := env.Fsm.GetStepLog(env.StepNumber)
+	if postWriteLog != nil {
+		CheckLogDataField(postWriteLog, "type", "PostWrite")
+		CheckLogDataField(postWriteLog, "table", tablename)
+		CheckLogDataField(postWriteLog, "key", key)
+		log.Printf("[INFO] Seen PostWrite log for step %d", postWriteLog.StepNumber)
+		env.StepNumber += 1
+		env.SeqNum = postWriteLog.SeqNum
 		return
 	}
-	if preWriteLog.SeqNum != env.SeqNum {
-		log.Fatalf("[ERROR] PreWrite log seqnum %x not matching env seqnum %x", preWriteLog.SeqNum, env.SeqNum)
-	}
-	if !newLog {
-		CheckLogDataField(preWriteLog, "type", "PreWrite")
-		CheckLogDataField(preWriteLog, "table", tablename)
-		CheckLogDataField(preWriteLog, "key", key)
-		log.Printf("[INFO] Seen PreWrite log for step %d", preWriteLog.StepNumber)
-	}
-	var version uint64
-	if !dependent {
-		version = env.SeqNum
-	}
+	h := fnv.New32a()
+	h.Write([]byte(env.InstanceId))
+	version := (uint64(h.Sum32()) << 32) | uint64(uint32(env.StepNumber))
 	LibWriteMultiVersion(tablename, key, version, update)
+	step := env.StepNumber
+	env.StepNumber += 1
+	wg.Wait()
+	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		ProposeNextStep(
+		ProposeNextStepBatch(
 			env,
+			step,
 			[]uint64{DatabaseKeyTag(tablename, key)},
 			aws.JSONValue{
 				"type":    "PostWrite",
@@ -476,5 +474,6 @@ func BatchWrite(env *Env, tablename string, key string, update map[expression.Na
 				"table":   tablename,
 				"version": version,
 			})
+		wg.Done()
 	}()
 }

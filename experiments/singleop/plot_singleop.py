@@ -80,4 +80,4 @@ if __name__ == "__main__":
         read_p99.append(r99)
         write_p50.append(w50)
         write_p99.append(w99)
-    plot(read_p50, read_p99, write_p50, write_p99, f"{run}_v{args.size}/microbenchmarks.png")
+    plot(read_p50, read_p99, write_p50, write_p99, f"{run}_qps{args.qps}_v{args.size}/microbenchmarks.png")
