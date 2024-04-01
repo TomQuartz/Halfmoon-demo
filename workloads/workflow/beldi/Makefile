@@ -95,6 +95,14 @@ retwis-baseline:
 	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BASELINE" -o bin/bretwis/publish internal/retwis/handlers/publish/main.go
 	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BASELINE" -o bin/bretwis/timeline internal/retwis/handlers/timeline/main.go
 
+batching-baseline:
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BASELINE" -o bin/bbatching/init internal/batching/init/init.go
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BASELINE" -o bin/bbatching/rw internal/batching/rw/main.go
+
+batching:
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BELDI" -o bin/batching/init internal/batching/init/init.go
+	env GOOS=linux go build -ldflags="-s -w -X github.com/eniac/Beldi/pkg/beldilib.TYPE=BELDI" -o bin/batching/rw internal/batching/main/main.go
+
 clean:
 	rm -rf ./bin
 

@@ -7,8 +7,8 @@ HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper
 
 RUN=$1
 
-QPS=(15)
-VALUE_SIZE=(4096)
+QPS=(200 400 600 800 1000 1200 1400 1600 1800)
+VALUE_SIZE=(256)
 
 $HELPER_SCRIPT start-machines --base-dir=$BASE_DIR --instance-iam-role=$BOKI_MACHINE_IAM
 

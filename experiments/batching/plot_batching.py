@@ -29,41 +29,43 @@ def plot(data, qps, read_ratios, figname):
     plt.rc("font", **{"size": font_size})
     metrics = ["p50", "p99", "avg"]
     ylabels = ["Median latency (ms)", "99% latency (ms)", "Average latency (ms)"]
-    fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15))
+    fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(40, 15))
     for ax in axs.flat:
         ax.get_yaxis().set_tick_params(direction="in")
         ax.get_xaxis().set_tick_params(direction="in", pad=8)
         ax.grid(True)
-    axs[-1].set_xlabel("Read Ratio", labelpad=8)
+    for i in range(4):
+        axs[-1][i].set_xlabel("Read Ratio", labelpad=8)
     for i, ax in enumerate(axs):
-        ax.set_ylabel(ylabels[i], labelpad=8, fontsize=font_size)
-    plt.subplots_adjust(hspace=0.18)
+        ax[0].set_ylabel(ylabels[i], labelpad=8, fontsize=font_size)
+    plt.subplots_adjust(hspace=0.18, wspace=0.18)
 
     labels = ["Boki", "HM-read", "HM-write", "HM-read (batching)", "HM-write (batching)"]
     markers = ["^", "o", "d", "o", "d"]
-    colors = ["red", "lightsalmon", "lightcoral", "lightsalmon", "lightcoral"]
+    colors = ["red", "lightcoral", "lightsalmon", "lightcoral", "lightsalmon"]
     linestyles = [":", "-", "-", "--", "--"]
     xticks = read_ratios
 
     handles = None
-    for i, metric in enumerate(metrics):
-        curves = []
-        for j, baseline in enumerate(labels):
-            (curve,) = axs[i].plot(
-                xticks,
-                data[baseline][metric],
-                label=labels[j],
-                marker=markers[j],
-                markersize=markersize,
-                markeredgecolor="k",
-                color=colors[j],
-                linestyle=linestyles[j],
-                linewidth=linewidth,
-            )
-            curves.append(curve)
-        axs[i].set_xticks(xticks)
-        if handles is None:
-            handles = curves
+    for k in range(4):
+        for i, metric in enumerate(metrics):
+            curves = []
+            for j, baseline in enumerate(labels):
+                (curve,) = axs[i][k].plot(
+                    xticks,
+                    data[baseline][metric][k],
+                    label=labels[j],
+                    marker=markers[j],
+                    markersize=markersize,
+                    markeredgecolor="k",
+                    color=colors[j],
+                    linestyle=linestyles[j],
+                    linewidth=linewidth,
+                )
+                curves.append(curve)
+            axs[i][k].set_xticks(xticks)
+            if handles is None:
+                handles = curves
 
     ############################################ legend
     legend_size = 20
@@ -88,8 +90,9 @@ def plot(data, qps, read_ratios, figname):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--read-ratios", nargs="+", type=float, default=[0.1, 0.3, 0.5, 0.7, 0.9])
-    parser.add_argument("--qps", nargs="+", type=int, default=[100])
+    parser.add_argument("--qps", nargs="+", type=int, default=[10])
     parser.add_argument("--value-size", type=int, default=256)
+    parser.add_argument("--batch-size", nargs="+", type=int, default=[2, 4, 6, 8])
     parser.add_argument("run", metavar="run", type=int, default=0)
     args = parser.parse_args()
     run = args.run
@@ -106,13 +109,22 @@ if __name__ == "__main__":
     for baseline, logmode, name in baselines:
         result = {"p50": [], "p99": [], "avg": []}
         for qps in args.qps:
-            for rr in args.read_ratios:
-                exp_name = f"ReadRatio{rr}_QPS{qps}_v{args.value_size}"
-                if logmode is not None:
-                    exp_name += f"_{logmode}"
-                p50, p99, avg = summary(baseline, exp_name, run)
-                result["p50"].append(p50)
-                result["p99"].append(p99)
-                result["avg"].append(avg)
+            for bs in args.batch_size:
+                result_p50 = []
+                result_p99 = []
+                result_avg = []
+                for rr in args.read_ratios:
+                    exp_name = f"ReadRatio{rr}_QPS{qps}_ops80"
+                    if baseline == "optimal-batch":
+                        exp_name += f"_bs{bs}"
+                    if logmode is not None:
+                        exp_name += f"_{logmode}"
+                    p50, p99, avg = summary(baseline, exp_name, run)
+                    result_p50.append(p50)
+                    result_p99.append(p99)
+                    result_avg.append(avg)
+                result["p50"].append(result_p50)
+                result["p99"].append(result_p99)
+                result["avg"].append(result_avg)
         results[name] = result
-    plot(results, args.qps, args.read_ratios, f"{run}/batching_QPS{qps}.png")
+    plot(results, args.qps, args.read_ratios, f"{run}/batching_QPS10.png")
