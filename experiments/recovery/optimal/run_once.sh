@@ -5,7 +5,7 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=shengqipku/boki-beldibench:workflow
+BENCH_IMAGE=emptyredbox/halfmoon-bench:journal-v9
 
 STACK=boki
 
@@ -99,13 +99,13 @@ scp -q $ROOT_DIR/workloads/workflow/optimal/benchmark/recovery/workload.lua $CLI
 #     -s /tmp/prewarm.lua \
 #     http://$ENTRY_HOST:8080 -R 1 >$EXP_DIR/wrk_prewarm.log
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 30 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
 
 sleep 10
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 600 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 150 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 

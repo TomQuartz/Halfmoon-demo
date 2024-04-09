@@ -17,8 +17,8 @@ if ! [ -f "$BASE_DIR/machines.json" ]; then
 fi
 
 NUM_KEYS=10000
-QPS=(10) # QPS=(100 200 300 400)
-NUM_OPS=(80)
+QPS=(50) # QPS=(100 200 300 400)
+NUM_OPS=(40)
 READ_RATIO=(0.1 0.9)
 LOGMODE=("read" "write")
 VALUE_SIZE=(256)

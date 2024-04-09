@@ -127,7 +127,7 @@ services:
     restart: always
 
   recovery-service:
-    image: shengqipku/halfmoon-bench:sosp-ae
+    image: emptyredbox/halfmoon-bench:journal-v9
     entrypoint: ["/tmp/boki/run_launcher", "/bokiflow-bin/recovery/recovery", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

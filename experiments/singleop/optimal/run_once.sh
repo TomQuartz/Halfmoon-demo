@@ -5,13 +5,13 @@ set -u
 BASE_DIR=`realpath $(dirname $0)`
 ROOT_DIR=`realpath $BASE_DIR/../../..`
 
-BENCH_IMAGE=emptyredbox/halfmoon-bench:journal-v2
+BENCH_IMAGE=emptyredbox/halfmoon-bench:journal-v9
 
 STACK=halfmoon
 
 AWS_REGION=ap-southeast-1
 
-NUM_KEYS=100
+NUM_KEYS=30000
 
 EXP_DIR=$BASE_DIR/results/$1
 QPS=$2

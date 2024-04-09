@@ -120,4 +120,6 @@ if __name__ == "__main__":
         result["read_p99"].append(read_p99)
         result["write_p50"].append(write_p50)
         result["write_p99"].append(write_p99)
-    plot(result, args.qps, f"{run}_v{args.size}/microbenchmarks.png")
+    for i in range(len(result["read_p50"][0])):
+        print((result["read_p50"][1][i] - result["read_p50"][0][i]) / (result["read_p50"][2][i] - result["read_p50"][0][i]))
+    # plot(result, args.qps, f"{run}_v{args.size}/microbenchmarks.png")

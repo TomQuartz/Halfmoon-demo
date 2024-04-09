@@ -26,9 +26,9 @@ for qps in ${QPS[@]}; do
             if ! [ -d "$BASE_DIR/results/${EXP_DIR}_$RUN" ]; then
                 $BASE_DIR/run_once.sh $EXP_DIR $qps $mode $v # 2>&1 | tee $BASE_DIR/run.log 
                 mv $BASE_DIR/results/$EXP_DIR $BASE_DIR/results/${EXP_DIR}_$RUN
+                sleep 30
             fi
             echo "finished $BASE_DIR/$EXP_DIR"
-            sleep 30
         done
     done
 done

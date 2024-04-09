@@ -8,7 +8,8 @@ RUN cd /workflow/workloads/beldi && \
     make hotel-baseline && \
     make media-baseline && \
     make retwis-baseline && \
-    make singleop-baseline
+    make singleop-baseline && \
+    make batching-baseline
 RUN cd /workflow/workloads/boki && \
     make hotel && \
     make media && \
