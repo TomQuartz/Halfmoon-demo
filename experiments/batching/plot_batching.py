@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -56,5 +57,5 @@ for i in range(len(ax)):
         ax[i][j].xaxis.set_ticks_position('bottom')
 fig.subplots_adjust(hspace=0.4, wspace=0.2)
 # plt.show()
-file_path = './figures/batching.pdf'
-plt.savefig(file_path, bbox_inches='tight', transparent=True)
+file_path = './figures/batching.png'
+plt.savefig(file_path, bbox_inches='tight', transparent=False)
