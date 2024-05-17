@@ -2,6 +2,7 @@ package cayonlib
 
 import (
 	"context"
+	"sync"
 
 	"cs.utexas.edu/zjia/faas/types"
 )
@@ -24,4 +25,5 @@ type Env struct {
 	FaasEnv     types.Environment
 	Fsm         *IntentFsm
 	LogSize     int
+	mux         sync.Mutex
 }

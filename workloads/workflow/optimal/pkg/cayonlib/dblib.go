@@ -430,7 +430,6 @@ func BatchRead(env *Env, tablename string, key string, wg *sync.WaitGroup) inter
 	}
 	step := env.StepNumber
 	env.StepNumber += 1
-	wg.Wait()
 	wg.Add(1)
 	go func() {
 		ProposeNextStepBatch(env, step, nil, aws.JSONValue{
@@ -457,11 +456,10 @@ func BatchWrite(env *Env, tablename string, key string, update map[expression.Na
 	}
 	h := fnv.New32a()
 	h.Write([]byte(env.InstanceId))
-	version := (uint64(h.Sum32()) << 32) | uint64(uint32(env.StepNumber))
+	version := (uint64(h.Sum32()) << 18) | (uint64(uint32(env.StepNumber)))
 	LibWriteMultiVersion(tablename, key, version, update)
 	step := env.StepNumber
 	env.StepNumber += 1
-	wg.Wait()
 	wg.Add(1)
 	go func() {
 		ProposeNextStepBatch(

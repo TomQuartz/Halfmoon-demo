@@ -127,7 +127,7 @@ services:
     restart: always
 
   rw-service:
-    image: emptyredbox/halfmoon-bench:journal-v9
+    image: emptyredbox/halfmoon-bench:journal-v35
     entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/batching", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -146,7 +146,7 @@ services:
     restart: always
 
   prewarm-service:
-    image: emptyredbox/halfmoon-bench:journal-v9
+    image: emptyredbox/halfmoon-bench:journal-v35
     entrypoint: ["/tmp/boki/run_launcher", "/optimal-bin/batching/prewarm", "2"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

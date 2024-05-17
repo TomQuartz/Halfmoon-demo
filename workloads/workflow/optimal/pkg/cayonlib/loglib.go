@@ -49,14 +49,6 @@ func (fsm *IntentFsm) applyLog(intentLog *IntentLogEntry) {
 	}
 }
 
-func (fsm *IntentFsm) applyLogBatch(intentLog *IntentLogEntry) {
-	fsm.tail = intentLog
-	step := intentLog.StepNumber
-	if _, exists := fsm.stepLogs[step]; !exists {
-		fsm.stepLogs[step] = intentLog
-	}
-}
-
 func (fsm *IntentFsm) Catch(env *Env) {
 	tag := IntentStepStreamTag(fsm.instanceId)
 	seqNum := uint64(0)
@@ -118,16 +110,6 @@ func ProposeNextStep(env *Env, tags []uint64, data aws.JSONValue) (bool, *Intent
 	env.Fsm.applyLog(intentLog)
 	env.SeqNum = intentLog.SeqNum
 	return true, intentLog
-	// if condOK {
-	// 	intentLog.SeqNum = seqNum
-	// 	env.Fsm.applyLog(intentLog)
-	// } else {
-	// 	log.Printf("[INFO] Found concurrent intent step log: instance=%v step=%d", env.InstanceId, step)
-	// 	env.Fsm.Catch(env)
-	// 	intentLog = env.Fsm.GetStepLog(step)
-	// }
-	// env.SeqNum = intentLog.SeqNum
-	// return condOK, intentLog
 }
 
 func ProposeNextStepBatch(env *Env, step int32, tags []uint64, data aws.JSONValue) (bool, *IntentLogEntry) {
@@ -142,15 +124,13 @@ func ProposeNextStepBatch(env *Env, step int32, tags []uint64, data aws.JSONValu
 		PostStep:   false,
 		Data:       data,
 	}
-	seqNum, condOK := LibConditionalAppendLog(env, tags, &intentLog, IntentStepStreamTag(env.InstanceId), uint32(step))
-	if !condOK {
-		log.Printf("[WARN] Found concurrent intent step log: instance=%v step=%d", env.InstanceId, step)
-		env.Instruction = "EXIT"
-		return false, nil
-	}
+	seqNum := LibAppendLogBatch(env, tags, &intentLog)
 	intentLog.SeqNum = seqNum
-	env.Fsm.applyLogBatch(intentLog)
-	env.SeqNum = intentLog.SeqNum
+	env.mux.Lock()
+	if env.SeqNum < seqNum {
+		env.SeqNum = seqNum
+	}
+	env.mux.Unlock()
 	return true, intentLog
 }
 
@@ -183,6 +163,15 @@ func LibAppendLog(env *Env, tag uint64, data interface{}) uint64 {
 	env.LogSize += len(serializedData)
 	encoded := snappy.Encode(nil, serializedData)
 	seqNum, err := env.FaasEnv.SharedLogAppend(env.FaasCtx, []uint64{tag}, encoded)
+	CHECK(err)
+	return seqNum
+}
+
+func LibAppendLogBatch(env *Env, tags []uint64, data interface{}) uint64 {
+	serializedData, err := json.Marshal(data)
+	CHECK(err)
+	encoded := snappy.Encode(nil, serializedData)
+	seqNum, err := env.FaasEnv.SharedLogAppend(env.FaasCtx, tags, encoded)
 	CHECK(err)
 	return seqNum
 }

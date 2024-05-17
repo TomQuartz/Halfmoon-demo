@@ -56,21 +56,33 @@ func init() {
 }
 
 func Handler(env *cayonlib.Env) interface{} {
-	for i := 0; i < nReads; i++ {
-		cayonlib.Read(env, table, strconv.Itoa(rand.Intn(nKeys)))
-	}
-	writeSet := []int{}
-	for i := 0; i < int(nOps)-nReads; i++ {
-		writeKey := rand.Intn(nKeys)
-		cayonlib.Write(env, table, strconv.Itoa(writeKey), map[expression.NameBuilder]expression.OperandBuilder{
-			expression.Name("V"): expression.Value(value),
-		}, false)
-		writeSet = append(writeSet, writeKey)
-	}
 	if cayonlib.TYPE == "WRITELOG" {
+		for i := 0; i < nReads; i++ {
+			cayonlib.Read(env, table, strconv.Itoa(rand.Intn(nKeys)))
+		}
+		writeSet := []int{}
+		for i := 0; i < int(nOps)-nReads; i++ {
+			writeKey := rand.Intn(nKeys)
+			cayonlib.Write(env, table, strconv.Itoa(writeKey), map[expression.NameBuilder]expression.OperandBuilder{
+				expression.Name("V"): expression.Value(value),
+			}, false)
+			writeSet = append(writeSet, writeKey)
+		}
 		return writeSet
+	} else {
+		for i := 0; i < nReads; i++ {
+			cayonlib.Read(env, table, strconv.Itoa(rand.Intn(nKeys)))
+		}
+		writeSet := []int{}
+		for i := 0; i < int(nOps)-nReads; i++ {
+			writeKey := rand.Intn(nKeys)
+			cayonlib.Write(env, table, strconv.Itoa(writeKey), map[expression.NameBuilder]expression.OperandBuilder{
+				expression.Name("V"): expression.Value(value),
+			}, false)
+			writeSet = append(writeSet, writeKey)
+		}
+		return nil
 	}
-	return nil
 }
 
 func main() {
