@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: rw
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/switching/rw", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: prewarm
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/switching/prewarm", "2"]
           volumeMounts:
             - name: inmem-boki-volume

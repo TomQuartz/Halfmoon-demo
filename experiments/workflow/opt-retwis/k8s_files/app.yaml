@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: login
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/retwis/login", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
         - name: profile
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/retwis/profile", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -107,7 +107,7 @@ spec:
     spec:
       containers:
         - name: timeline
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/retwis/timeline", "3"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -156,7 +156,7 @@ spec:
     spec:
       containers:
         - name: post
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/retwis/post", "4"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -203,7 +203,7 @@ spec:
     spec:
       containers:
         - name: publish
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/retwis/publish", "5"]
           volumeMounts:
             - name: inmem-boki-volume

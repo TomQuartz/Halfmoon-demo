@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: rw
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/bokiflow-bin/rw/rw", "1"]
           volumeMounts:
             - name: inmem-boki-volume

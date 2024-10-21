@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/Frontend", "1"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
         - name: cast-info
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/CastInfo", "2"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -107,7 +107,7 @@ spec:
     spec:
       containers:
         - name: review-storage
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/ReviewStorage", "3"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -154,7 +154,7 @@ spec:
     spec:
       containers:
         - name: user-review
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/UserReview", "4"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -201,7 +201,7 @@ spec:
     spec:
       containers:
         - name: movie-review
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/MovieReview", "5"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -248,7 +248,7 @@ spec:
     spec:
       containers:
         - name: compose-review
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/ComposeReview", "6"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -295,7 +295,7 @@ spec:
     spec:
       containers:
         - name: text
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/Text", "7"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -342,7 +342,7 @@ spec:
     spec:
       containers:
         - name: user
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/User", "8"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -389,7 +389,7 @@ spec:
     spec:
       containers:
         - name: unique-id
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/UniqueId", "9"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -436,7 +436,7 @@ spec:
     spec:
       containers:
         - name: rating
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/Rating", "10"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -483,7 +483,7 @@ spec:
     spec:
       containers:
         - name: movie-id
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/MovieId", "11"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -530,7 +530,7 @@ spec:
     spec:
       containers:
         - name: plot
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/Plot", "12"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -577,7 +577,7 @@ spec:
     spec:
       containers:
         - name: movie-info
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/MovieInfo", "13"]
           volumeMounts:
             - name: inmem-boki-volume
@@ -624,7 +624,7 @@ spec:
     spec:
       containers:
         - name: page
-          image: emptyredbox/halfmoon-bench:small-v0
+          image: emptyredbox/halfmoon-bench:test-v15
           command: ["/tmp/boki/run_launcher", "/optimal-bin/media/Page", "14"]
           volumeMounts:
             - name: inmem-boki-volume
