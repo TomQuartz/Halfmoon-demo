@@ -22,11 +22,8 @@ spec:
           mountPath: /tmp/storage
         - name: storage-script
           mountPath: /tmp/scripts/storage_start.sh
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
+        - name: node-name
+          mountPath: /tmp/node_name
       volumes:
       - name: storage-volume
         hostPath:
@@ -34,6 +31,9 @@ spec:
       - name: storage-script
         hostPath:
           path: /tmp/storage_start.sh
+      - name: node-name
+        hostPath:
+          path: /tmp/node_name
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: storage_node
       restartPolicy: Always

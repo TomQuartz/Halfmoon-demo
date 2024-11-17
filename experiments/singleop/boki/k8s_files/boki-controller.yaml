@@ -3,7 +3,8 @@ kind: Pod
 metadata:
   name: boki-controller
 spec:
-  nodeName: gateway1
+  nodeSelector:
+    node-restriction.kubernetes.io/placement_label: gateway_node
   containers:
     - name: boki-controller
       image: shengqipku/halfmoon:sosp-ae

@@ -24,13 +24,11 @@ spec:
               mountPath: /tmp/root_cgroupfs
             - name: engine-script
               mountPath: /tmp/scripts/engine_start.sh
+            - name: node-name
+              mountPath: /tmp/node_name
           env:
             - name: FAAS_CGROUP_FS_ROOT
               value: /tmp/root_cgroupfs
-            - name: NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
       volumes:
         - name: boki-data
           hostPath:
@@ -41,6 +39,9 @@ spec:
         - name: engine-script
           hostPath:
             path: /tmp/engine_start.sh
+        - name: node-name
+          hostPath:
+            path: /tmp/node_name
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: engine_node
       restartPolicy: Always

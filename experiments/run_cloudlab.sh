@@ -2,6 +2,11 @@
 set -u
 
 BASE_DIR=`realpath $(dirname $0)`
+ROOT_DIR=`realpath $BASE_DIR/..`
+
+# setup aws credentials
+mkdir -p ~/.aws
+cp $ROOT_DIR/scripts/.aws/credentials ~/.aws/credentials
 
 # create a pod for database
 kubectl apply -f "$BASE_DIR/db.yaml"
@@ -11,17 +16,17 @@ cd $BASE_DIR/singleop
 ./run_quick_cloudlab.sh 1 >run.log 2>&1
 echo "Finished singleop"
 
-cd $BASE_DIR/workflow
-./run_quick_cloudlab.sh 1 >run.log 2>&1
-echo "Finished workflow"
+# cd $BASE_DIR/workflow
+# ./run_quick_cloudlab.sh 1 >run.log 2>&1
+# echo "Finished workflow"
 
-cd $BASE_DIR/overhead
-./run_quick_cloudlab.sh 1 >run.log 2>&1
-echo "Finished overhead"
+# cd $BASE_DIR/overhead
+# ./run_quick_cloudlab.sh 1 >run.log 2>&1
+# echo "Finished overhead"
 
-cd $BASE_DIR/switching
-./run_all_cloudlab.sh 1 >run.log 2>&1
-echo "Finished switching"
+# cd $BASE_DIR/switching
+# ./run_all_cloudlab.sh 1 >run.log 2>&1
+# echo "Finished switching"
 
 kubectl delete pod dynamodb-local
 kubectl delete service dynamodb-service

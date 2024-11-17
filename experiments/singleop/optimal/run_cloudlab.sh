@@ -26,21 +26,31 @@ ENTRY_HOST="gateway1"
 ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $MANAGER_HOST)
 
 # assign labels and copy scripts to the corresponding nodes
+engine_id=0
 for HOST in ${ENGINE_HOSTS[@]}; do 
+    engine_id=$((engine_id+1))
+    echo engine$engine_id | ssh -q $HOST -- sudo tee /tmp/node_name
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
     ssh -q $HOST -- sudo mkdir -p /mnt/inmem/.aws
     sudo scp -q $ROOT_DIR/scripts/.aws/credentials $HOST:/mnt/inmem/.aws/
 done
+sequencer_id=0
 for HOST in ${SEQUENCER_HOSTS[@]}; do 
+    sequencer_id=$((sequencer_id+1))
+    echo sequencer$sequencer_id | ssh -q $HOST -- sudo tee /tmp/node_name
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=sequencer_node
     scp -q $BASE_DIR/k8s_files/sequencer_start.sh $HOST:/tmp/sequencer_start.sh
 done
+storage_id=0
 for HOST in ${STORAGE_HOSTS[@]}; do 
+    storage_id=$((storage_id+1))
+    echo storage$storage_id | ssh -q $HOST -- sudo tee /tmp/node_name
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=storage_node
     scp -q $BASE_DIR/k8s_files/storage_start.sh $HOST:/tmp/storage_start.sh
 done
+kubectl label nodes $MANAGER_HOST node-restriction.kubernetes.io/placement_label=gateway_node --overwrite
 
 ssh -q $CLIENT_HOST -- sudo docker pull $BENCH_IMAGE
 ssh -q $CLIENT_HOST -- sudo rm -rf /tmp/singleop/

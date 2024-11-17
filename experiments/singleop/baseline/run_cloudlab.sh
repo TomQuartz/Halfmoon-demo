@@ -25,13 +25,17 @@ ENTRY_HOST="gateway1"
 ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $MANAGER_HOST)
 
 # assign labels and copy scripts to the corresponding nodes
+engine_id=0
 for HOST in ${ENGINE_HOSTS[@]}; do 
+    engine_id=$((engine_id+1))
+    echo engine$engine_id | ssh -q $HOST -- sudo tee /tmp/node_name
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
     ssh -q $HOST -- sudo mkdir -p /mnt/inmem/.aws
     sudo scp -q $ROOT_DIR/scripts/.aws/credentials $HOST:/mnt/inmem/.aws/
 done
+kubectl label nodes $MANAGER_HOST node-restriction.kubernetes.io/placement_label=gateway_node --overwrite
 
 ssh -q $CLIENT_HOST -- sudo docker pull $BENCH_IMAGE
 ssh -q $CLIENT_HOST -- sudo rm -rf /tmp/bsingleop/

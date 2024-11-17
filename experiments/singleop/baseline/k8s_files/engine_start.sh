@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NODE_ID=$(echo "$NODE_NAME" | grep -oE '[0-9]+$')
+NODE_ID=$(cat /tmp/node_name | grep -oE '[0-9]+$')
 echo "export FAAS_NODE_ID=$NODE_ID" >> ~/.bashrc
 source ~/.bashrc
 

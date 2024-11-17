@@ -20,15 +20,15 @@ spec:
         volumeMounts:
         - name: sequencer-script
           mountPath: /tmp/scripts/sequencer_start.sh
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
+        - name: node-name
+          mountPath: /tmp/node_name
       volumes:
       - name: sequencer-script
         hostPath:
           path: /tmp/sequencer_start.sh
+      - name: node-name
+        hostPath:
+          path: /tmp/node_name
       nodeSelector:
         node-restriction.kubernetes.io/placement_label: sequencer_node
       restartPolicy: Always
