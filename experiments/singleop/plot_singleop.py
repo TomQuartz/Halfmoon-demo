@@ -13,6 +13,8 @@ def summary(baseline, exp_name, run, log_mode=None):
     else:
         run_dir = f"{exp_name}_{run}"
     exp_dir = os.path.join(base_dir, run_dir)
+    if not os.path.exists(os.path.join(exp_dir, "latency.txt")):
+        return 0,0,0,0
     with open(os.path.join(exp_dir, "latency.txt")) as f:
         lines = f.read().strip().split("\n")
         read_p50, read_p99 = parse.parse("read latency: p50={:f}ms p99={:f}ms", lines[0])
@@ -64,6 +66,7 @@ def plot(read_p50, read_p99, write_p50, write_p99, figname):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--qps", type=int, default=20)
+    parser.add_argument("--out", type=str, default="microbenchmarks")
     parser.add_argument("run", metavar="run", type=int, default=0)
     args = parser.parse_args()
     run = args.run
@@ -79,4 +82,4 @@ if __name__ == "__main__":
         read_p99.append(r99)
         write_p50.append(w50)
         write_p99.append(w99)
-    plot(read_p50, read_p99, write_p50, write_p99, f"{run}/microbenchmarks.png")
+    plot(read_p50, read_p99, write_p50, write_p99, f"{run}/{args.out}.png")

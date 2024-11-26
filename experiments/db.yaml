@@ -5,7 +5,6 @@ metadata:
   labels:
     app.kubernetes.io/name: dynamodb-local
 spec:
-  nodeName: gateway1
   containers:
   - name: dynamodb-local
     image: amazon/dynamodb-local:latest

@@ -13,19 +13,19 @@ kubectl apply -f "$BASE_DIR/db.yaml"
 sleep 40
 
 cd $BASE_DIR/singleop
-./run_quick_cloudlab.sh 1 >run.log 2>&1
+./run_quick_cloudlab.sh 1 2>&1 | tee run.log
 echo "Finished singleop"
 
 # cd $BASE_DIR/workflow
-# ./run_quick_cloudlab.sh 1 >run.log 2>&1
+# ./run_quick_cloudlab.sh 1 2>&1 | tee run.log
 # echo "Finished workflow"
 
 # cd $BASE_DIR/overhead
-# ./run_quick_cloudlab.sh 1 >run.log 2>&1
+# ./run_quick_cloudlab.sh 1 2>&1 | tee run.log
 # echo "Finished overhead"
 
 # cd $BASE_DIR/switching
-# ./run_all_cloudlab.sh 1 >run.log 2>&1
+# ./run_all_cloudlab.sh 1 2>&1 | tee run.log
 # echo "Finished switching"
 
 kubectl delete pod dynamodb-local

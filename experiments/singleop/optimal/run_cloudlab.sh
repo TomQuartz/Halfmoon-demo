@@ -17,12 +17,12 @@ WRK_DIR=$ROOT_DIR/scripts
 TABLE_PREFIX=$(head -c 64 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 TABLE_PREFIX="${TABLE_PREFIX}-"
 
-ENGINE_HOSTS=("engine1" "engine2" "engine3")
-SEQUENCER_HOSTS=("sequencer1" "sequencer2" "sequencer3")
-STORAGE_HOSTS=("storage1" "storage2" "storage3")
-MANAGER_HOST="gateway1"
+ENGINE_HOSTS=("node7" "node8" "node9")
+SEQUENCER_HOSTS=("node1" "node2" "node3")
+STORAGE_HOSTS=("node4" "node5" "node6")
+MANAGER_HOST="node10"
 CLIENT_HOST="master1"
-ENTRY_HOST="gateway1"
+ENTRY_HOST="node10"
 ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $MANAGER_HOST)
 
 # assign labels and copy scripts to the corresponding nodes
@@ -30,7 +30,7 @@ engine_id=0
 for HOST in ${ENGINE_HOSTS[@]}; do 
     engine_id=$((engine_id+1))
     echo engine$engine_id | ssh -q $HOST -- sudo tee /tmp/node_name
-    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
+    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node --overwrite
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
     ssh -q $HOST -- sudo mkdir -p /mnt/inmem/.aws
@@ -40,14 +40,14 @@ sequencer_id=0
 for HOST in ${SEQUENCER_HOSTS[@]}; do 
     sequencer_id=$((sequencer_id+1))
     echo sequencer$sequencer_id | ssh -q $HOST -- sudo tee /tmp/node_name
-    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=sequencer_node
+    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=sequencer_node --overwrite
     scp -q $BASE_DIR/k8s_files/sequencer_start.sh $HOST:/tmp/sequencer_start.sh
 done
 storage_id=0
 for HOST in ${STORAGE_HOSTS[@]}; do 
     storage_id=$((storage_id+1))
     echo storage$storage_id | ssh -q $HOST -- sudo tee /tmp/node_name
-    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=storage_node
+    kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=storage_node --overwrite
     scp -q $BASE_DIR/k8s_files/storage_start.sh $HOST:/tmp/storage_start.sh
 done
 kubectl label nodes $MANAGER_HOST node-restriction.kubernetes.io/placement_label=gateway_node --overwrite
@@ -64,6 +64,7 @@ ssh -q $CLIENT_HOST -- TABLE_PREFIX=$TABLE_PREFIX NUM_KEYS=$NUM_KEYS LoggingMode
     /tmp/singleop/init populate
 
 # Create a ConfigMap to store environment variables (TABLE_PREFIX, NUM_KEYS)
+kubectl delete configmap env-config --ignore-not-found
 kubectl create configmap env-config \
     --from-literal=TABLE_PREFIX=$TABLE_PREFIX \
     --from-literal=NUM_KEYS=$NUM_KEYS \
@@ -121,13 +122,13 @@ scp -q $ROOT_DIR/workloads/workflow/optimal/benchmark/singleop/workload.lua $CLI
 
 # sleep 10
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 30 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS >$EXP_DIR/wrk_warmup.log
 
 sleep 10
 
-ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 600 -L -U \
+ssh -q $CLIENT_HOST -- $WRK_DIR/wrk -t 2 -c 2 -d 120 -L -U \
     -s /tmp/workload.lua \
     http://$ENTRY_HOST:8080 -R $QPS 2>/dev/null >$EXP_DIR/wrk.log
 
