@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper
+  labels:
+    app.kubernetes.io/name: zookeeper
+spec:
+  nodeSelector:
+    node-restriction.kubernetes.io/placement_label: gateway_node
+  containers:
+  - name: zookeeper
+    image: zookeeper:3.6.2
+    ports:
+      - containerPort: 2181
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-service
+spec:
+  selector:
+    app.kubernetes.io/name: zookeeper
+  ports:
+  - protocol: TCP
+    port: 2181
+    targetPort: 2181
+  clusterIP: 10.96.128.128

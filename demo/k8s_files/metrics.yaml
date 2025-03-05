@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hm-log-metrics
+  labels:
+    app: hm-log-metrics
+spec:
+  containers:
+  - name: server
+    image: shengqipku/hm-log-metrics:latest
+    ports:
+      - containerPort: 8080
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hm-log-metrics
+spec:
+  selector:
+    app: hm-log-metrics
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30180
+  type: NodePort

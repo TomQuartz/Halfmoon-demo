@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: boki-engine
+  labels:
+    app: boki-engine
+spec:
+  selector:
+    matchLabels:
+      app: boki-engine
+  template:
+    metadata:
+      labels:
+        app: boki-engine
+    spec:
+      containers:
+        - name: boki-engine
+          image: shengqipku/halfmoon:sosp-ae
+          command: ["/tmp/scripts/engine_start.sh"]
+          volumeMounts:
+            - name: boki-data
+              mountPath: /tmp/boki
+            - name: cgroup-data
+              mountPath: /tmp/root_cgroupfs
+            - name: engine-script
+              mountPath: /tmp/scripts/engine_start.sh
+            - name: node-name
+              mountPath: /tmp/node_name
+          env:
+            - name: FAAS_CGROUP_FS_ROOT
+              value: /tmp/root_cgroupfs
+      volumes:
+        - name: boki-data
+          hostPath:
+            path: /mnt/inmem/boki
+        - name: cgroup-data
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: engine-script
+          hostPath:
+            path: /tmp/engine_start.sh
+        - name: node-name
+          hostPath:
+            path: /tmp/node_name
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: engine_node
+      restartPolicy: Always

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+BASE_DIR=`realpath $(dirname $0)`
+cd $BASE_DIR
+
+./bin/demo

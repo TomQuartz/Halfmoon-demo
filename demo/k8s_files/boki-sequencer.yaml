@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: boki-sequencer
+  labels:
+    app: boki-sequencer
+spec:
+  selector:
+    matchLabels:
+      app: boki-sequencer
+  template:
+    metadata:
+      labels:
+        app: boki-sequencer
+    spec:
+      containers:
+      - name: boki-sequencer
+        image: shengqipku/halfmoon:sosp-ae
+        command: ["/tmp/scripts/sequencer_start.sh"]
+        volumeMounts:
+        - name: sequencer-script
+          mountPath: /tmp/scripts/sequencer_start.sh
+        - name: node-name
+          mountPath: /tmp/node_name
+      volumes:
+      - name: sequencer-script
+        hostPath:
+          path: /tmp/sequencer_start.sh
+      - name: node-name
+        hostPath:
+          path: /tmp/node_name
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: sequencer_node
+      restartPolicy: Always

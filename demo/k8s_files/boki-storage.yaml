@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: boki-storage
+  labels:
+    app: boki-storage
+spec:
+  selector:
+    matchLabels:
+      app: boki-storage
+  template:
+    metadata:
+      labels:
+        app: boki-storage
+    spec:
+      containers:
+      - name: boki-storage
+        image: shengqipku/halfmoon:sosp-ae
+        command: ["/tmp/scripts/storage_start.sh"]
+        volumeMounts:
+        - name: storage-volume
+          mountPath: /tmp/storage
+        - name: storage-script
+          mountPath: /tmp/scripts/storage_start.sh
+        - name: node-name
+          mountPath: /tmp/node_name
+      volumes:
+      - name: storage-volume
+        hostPath:
+          path: /mnt/storage
+      - name: storage-script
+        hostPath:
+          path: /tmp/storage_start.sh
+      - name: node-name
+        hostPath:
+          path: /tmp/node_name
+      nodeSelector:
+        node-restriction.kubernetes.io/placement_label: storage_node
+      restartPolicy: Always

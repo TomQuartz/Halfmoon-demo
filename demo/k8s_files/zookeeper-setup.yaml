@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-setup
+spec:
+  nodeSelector:
+    node-restriction.kubernetes.io/placement_label: gateway_node
+  containers:
+    - name: zookeeper-setup
+      image: zookeeper:3.6.2
+      command: ["/tmp/boki/zk_setup.sh"]
+      volumeMounts:
+        - name: zk-setup-volume
+          mountPath: /tmp/boki/zk_setup.sh
+  volumes:
+    - name: zk-setup-volume
+      hostPath:
+        path: /tmp/zk_setup.sh
+  restartPolicy: Always
