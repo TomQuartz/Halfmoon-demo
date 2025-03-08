@@ -31,9 +31,10 @@ ALL_HOSTS=("${ENGINE_HOSTS[@]}" "${SEQUENCER_HOSTS[@]}" "${STORAGE_HOSTS[@]}" $M
 for HOST in ${ENGINE_HOSTS[@]}; do 
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node
     scp -q $BASE_DIR/k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
-    ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws
-    ssh -q $HOST -- sudo mkdir /mnt/inmem/.aws
-    sudo scp -q $ROOT_DIR/scripts/.aws/credentials $HOST:/mnt/inmem/.aws/
+    ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws ~/.aws
+    ssh -q $HOST -- sudo mkdir -p ~/.aws
+    scp -q $ROOT_DIR/scripts/.aws/credentials $HOST:~/.aws/
+    ssh -q $HOST -- sudo cp -r ~/.aws /mnt/inmem/
 done
 for HOST in ${SEQUENCER_HOSTS[@]}; do 
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=sequencer_node
