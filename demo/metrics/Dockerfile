@@ -1,4 +1,4 @@
-FROM golang:1.21.5 as BUILDER
+FROM golang:1.21.5 AS builder
 
 WORKDIR /src
 
@@ -7,7 +7,7 @@ COPY . .
 # Cache for repeated builds
 RUN go mod download
 
-RUN go build -mod=readonly -v -o server main.go
+RUN go build -mod=readonly -v -o server .
 
 FROM debian:stable-slim
 

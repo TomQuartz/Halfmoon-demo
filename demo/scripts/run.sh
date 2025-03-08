@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BASE_DIR=`realpath $(dirname $0)`
-cd $BASE_DIR
+ROOT_DIR=`realpath $BASE_DIR/..`
+cd $ROOT_DIR
 
 ./bin/demo

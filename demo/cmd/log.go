@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	logMetricsServer = "http://hm-log-metrics.default.svc.cluster.local:8080"
-	sendLogMetrics   = false
+	logMetricsServer = "http://localhost:30180" + "/add"
+	sendLogMetrics   = true
 	minLogSizeBytes  = 256
 )
 

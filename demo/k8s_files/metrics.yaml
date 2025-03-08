@@ -8,6 +8,7 @@ spec:
   containers:
   - name: server
     image: shengqipku/hm-log-metrics:latest
+    command: ["/metrics/server"]
     ports:
       - containerPort: 8080
   restartPolicy: Always
