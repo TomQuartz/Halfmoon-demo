@@ -34,8 +34,8 @@ for HOST in ${ENGINE_HOSTS[@]}; do
     kubectl label nodes $HOST node-restriction.kubernetes.io/placement_label=engine_node --overwrite
     scp -q ./k8s_files/engine_start.sh $HOST:/tmp/engine_start.sh
     ssh -q $HOST -- sudo rm -rf /mnt/inmem/.aws ~/.aws
-    ssh -q $HOST -- sudo mkdir -p ~/.aws
-    scp -q ./credentials $HOST:~/.aws/
+    ssh -q $HOST -- mkdir -p ~/.aws
+    scp -q ./credentials $HOST:~/.aws
     ssh -q $HOST -- sudo cp -r ~/.aws /mnt/inmem/
 done
 sequencer_id=0
@@ -96,4 +96,4 @@ kubectl patch -n kube-system deployment metrics-server \
     -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args/2", "value": "--kubelet-preferred-address-types=InternalIP"},
         {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
 
-sleep 80
+sleep 40

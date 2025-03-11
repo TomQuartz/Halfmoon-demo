@@ -10,7 +10,7 @@ Halfmoon demo
 
 ```shell
 # replace the node names with that in your actual cluster
-ENGINES=worker1,worker2,worker3 SEQUENCERS=worker4,worker5,worker6 STORAGES=worker7,worker8,worker9 GATEWAY=worker10 \
+ENGINES=worker1 SEQUENCERS=worker2 STORAGES=worker3 GATEWAY=worker4 \
     ./scripts/deploy.sh
 ```
 
